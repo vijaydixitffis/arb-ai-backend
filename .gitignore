@@ -1,0 +1,100 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/venv/
+backend/__pycache__/
+backend/.venv/
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Vector DB
+chroma_db/
+backend/chroma_db/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+uploads/
+backend/uploads/
+
+# Input docs (user documents, screenshots, etc.)
+input-docs/
+
+# Root package-lock.json (use frontend/package-lock.json)
+package-lock.json
+
+# Supabase temp folder
+supabase/.temp/
+
+# Backup files
+*.bak
+supabase/migrations/*.bak
+
+# Ad-hoc SQL dumps at repo root
+/arb_ai_agent_complete_backup_with_data_02May26.sql
+/arb_ai_agent_complete_ddl.sql
+/arb_ai_agent_schema_only_backup_02may2026.sql
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+*.cover
+testing/
+test_*.py
+*_test.py
+
+# Frontend build
+frontend/dist/
+frontend/build/
+
+# Supabase local
+.supabase/
+supabase/.branches/
+supabase/.functions/

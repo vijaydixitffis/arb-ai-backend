@@ -1,0 +1,7189 @@
+openapi: 3.1.0
+info:
+  title: ARB AI Agent API
+  description: Architecture Review Board AI Agent Backend
+  version: 1.0.0
+paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+      - v1 / authentication
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_api_v1_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/demo-users:
+    get:
+      tags:
+      - v1 / authentication
+      summary: Get Demo Users
+      description: Return information about default users in the database
+      operationId: get_demo_users_api_v1_auth_demo_users_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/metadata/steps:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Steps
+      description: Get all submission steps
+      operationId: get_steps_api_v1_metadata_steps_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/domains:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Domains
+      description: Get all domains
+      operationId: get_domains_api_v1_metadata_domains_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/domains/seq-number/{seq_number}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Domain By Seq Number
+      description: Get a domain by its sequence number
+      operationId: get_domain_by_seq_number_api_v1_metadata_domains_seq_number__seq_number__get
+      parameters:
+      - name: seq_number
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Seq Number
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/domains/step/{step_id}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Domains For Step
+      description: Get domains for a specific step
+      operationId: get_domains_for_step_api_v1_metadata_domains_step__step_id__get
+      parameters:
+      - name: step_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Step Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/domains/step-mapping:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Step To Domain Mapping
+      description: Get mapping of step_order to domain_slug
+      operationId: get_step_to_domain_mapping_api_v1_metadata_domains_step_mapping_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/artefact-types:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Artefact Types
+      description: Get all artefact types
+      operationId: get_artefact_types_api_v1_metadata_artefact_types_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/artefact-templates/domain/{domain_slug}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Artefact Templates
+      description: Get artefact templates for a specific domain
+      operationId: get_artefact_templates_api_v1_metadata_artefact_templates_domain__domain_slug__get
+      parameters:
+      - name: domain_slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Slug
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/checklist-subsections/domain/{domain_slug}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Checklist Subsections
+      description: Get checklist subsections for a specific domain
+      operationId: get_checklist_subsections_api_v1_metadata_checklist_subsections_domain__domain_slug__get
+      parameters:
+      - name: domain_slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Slug
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/ptx-gates:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Ptx Gates
+      description: Get all PTX gates
+      operationId: get_ptx_gates_api_v1_metadata_ptx_gates_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/architecture-dispositions:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Architecture Dispositions
+      description: Get all architecture dispositions
+      operationId: get_architecture_dispositions_api_v1_metadata_architecture_dispositions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/ea-principles:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Ea Principles
+      description: Get all EA principles
+      operationId: get_ea_principles_api_v1_metadata_ea_principles_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/ea-principles/domain/{domain_slug}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Ea Principles For Domain
+      description: Get EA principles for a specific domain
+      operationId: get_ea_principles_for_domain_api_v1_metadata_ea_principles_domain__domain_slug__get
+      parameters:
+      - name: domain_slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Slug
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/form-fields/step/{step_id}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Form Fields
+      description: Get form fields for a specific step
+      operationId: get_form_fields_api_v1_metadata_form_fields_step__step_id__get
+      parameters:
+      - name: step_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Step Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/question-options/question/{question_id}:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get Question Options
+      description: Get question options for a specific question
+      operationId: get_question_options_api_v1_metadata_question_options_question__question_id__get
+      parameters:
+      - name: question_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Question Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/question-options:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get All Question Options
+      description: Get all question options
+      operationId: get_all_question_options_api_v1_metadata_question_options_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/metadata/all:
+    get:
+      tags:
+      - v1 / metadata
+      summary: Get All Metadata
+      description: Get all metadata in a single call
+      operationId: get_all_metadata_api_v1_metadata_all_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/submissions:
+    get:
+      tags:
+      - v1 / submissions
+      summary: Get Submissions
+      description: Get all ARB submissions
+      operationId: get_submissions_api_v1_submissions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / submissions
+      summary: Create Submission
+      description: Create a new ARB submission
+      operationId: create_submission_api_v1_submissions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ARBSubmission'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/submissions/{submission_id}:
+    get:
+      tags:
+      - v1 / submissions
+      summary: Get Submission
+      description: Get a specific ARB submission
+      operationId: get_submission_api_v1_submissions__submission_id__get
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - v1 / submissions
+      summary: Update Submission
+      description: Update an existing ARB submission
+      operationId: update_submission_api_v1_submissions__submission_id__put
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ARBSubmission'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/submissions/{submission_id}/submit:
+    post:
+      tags:
+      - v1 / submissions
+      summary: Submit Submission
+      description: Submit ARB submission for review
+      operationId: submit_submission_api_v1_submissions__submission_id__submit_post
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/submissions/{submission_id}/artefacts:
+    post:
+      tags:
+      - v1 / submissions
+      summary: Upload Artefact
+      description: Upload an artefact for a submission
+      operationId: upload_artefact_api_v1_submissions__submission_id__artefacts_post
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_artefact_api_v1_submissions__submission_id__artefacts_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/submissions/{submission_id}/integration-catalogue:
+    post:
+      tags:
+      - v1 / submissions
+      summary: Upload Integration Catalogue
+      description: Upload integration catalogue (Excel/CSV)
+      operationId: upload_integration_catalogue_api_v1_submissions__submission_id__integration_catalogue_post
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_integration_catalogue_api_v1_submissions__submission_id__integration_catalogue_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews:
+    get:
+      tags:
+      - v1 / reviews
+      summary: Get Reviews
+      description: Get ARB reviews - all authenticated users can read
+      operationId: get_reviews_api_v1_reviews_get
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / reviews
+      summary: Create Review
+      description: Create a new ARB review with enhanced validation
+      operationId: create_review_api_v1_reviews_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Review Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews/{review_id}:
+    get:
+      tags:
+      - v1 / reviews
+      summary: Get Review
+      description: Get a specific ARB review with full domain breakdown for EA dossier
+        view.
+      operationId: get_review_api_v1_reviews__review_id__get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - v1 / reviews
+      summary: Update Review
+      description: Update an existing ARB review with enhanced validation - EA, ARB
+        Admin, and Solution Architect (for their own drafts)
+      operationId: update_review_api_v1_reviews__review_id__put
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Review Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews/{review_id}/approve:
+    post:
+      tags:
+      - v1 / reviews
+      summary: Approve Review
+      description: Approve a review (EA approval) - EA and ARB Admin only
+      operationId: approve_review_api_v1_reviews__review_id__approve_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: override_rationale
+        in: query
+        required: false
+        schema:
+          type: string
+          title: Override Rationale
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews/{review_id}/override:
+    post:
+      tags:
+      - v1 / reviews
+      summary: Override Review
+      description: Override agent recommendation (EA override) - EA and ARB Admin
+        only
+      operationId: override_review_api_v1_reviews__review_id__override_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: decision
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Decision
+      - name: rationale
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Rationale
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews/{review_id}/open:
+    post:
+      tags:
+      - v1 / reviews
+      summary: Open Review For Ea
+      description: 'Gate 2 open: transition review_ready → ea_reviewing when EA opens
+        the dossier.'
+      operationId: open_review_for_ea_api_v1_reviews__review_id__open_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews/{review_id}/ea-decision:
+    post:
+      tags:
+      - v1 / reviews
+      summary: Submit Ea Decision
+      description: 'Submit Gate 2 EA decision: APPROVE | CONDITIONALLY_APPROVE | RETURN
+        | DEFER.'
+      operationId: submit_ea_decision_api_v1_reviews__review_id__ea_decision_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/reviews/{review_id}/overrides:
+    post:
+      tags:
+      - v1 / reviews
+      summary: Create Ea Override
+      description: Create a governed EA override with mandatory rationale and full
+        audit trail.
+      operationId: create_ea_override_api_v1_reviews__review_id__overrides_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - v1 / reviews
+      summary: Get Ea Overrides
+      description: Return EA overrides for a review, optionally filtered by override_type.
+      operationId: get_ea_overrides_api_v1_reviews__review_id__overrides_get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: override_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Override Type
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/agent/review:
+    post:
+      tags:
+      - v1 / agent
+      summary: Trigger Review
+      description: Trigger ARB review orchestrator and persist results.
+      operationId: trigger_review_api_v1_agent_review_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/agent/test-llm:
+    get:
+      tags:
+      - v1 / agent
+      summary: Test Llm
+      operationId: test_llm_api_v1_agent_test_llm_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/artefacts/artefacts/upload:
+    post:
+      tags:
+      - v1 / artefacts
+      summary: Upload Artefact
+      description: Upload an artefact for a review
+      operationId: upload_artefact_api_v1_artefacts_artefacts_upload_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_artefact_api_v1_artefacts_artefacts_upload_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/artefacts/artefacts/review/{review_id}:
+    get:
+      tags:
+      - v1 / artefacts
+      summary: Get Review Artefacts
+      description: Get all artefacts for a review
+      operationId: get_review_artefacts_api_v1_artefacts_artefacts_review__review_id__get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/artefacts/artefacts/chunks/{review_id}:
+    get:
+      tags:
+      - v1 / artefacts
+      summary: Get Review Chunks
+      description: Get relevant chunks for a review
+      operationId: get_review_chunks_api_v1_artefacts_artefacts_chunks__review_id__get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: domain_slug
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain Slug
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/artefacts/artefacts/{artefact_id}:
+    delete:
+      tags:
+      - v1 / artefacts
+      summary: Delete Artefact
+      description: Delete an artefact
+      operationId: delete_artefact_api_v1_artefacts_artefacts__artefact_id__delete
+      parameters:
+      - name: artefact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artefact Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/artefacts/knowledge-base/search:
+    get:
+      tags:
+      - v1 / artefacts
+      summary: Search Knowledge Base
+      description: Search knowledge base for relevant content
+      operationId: search_knowledge_base_api_v1_artefacts_knowledge_base_search_get
+      parameters:
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Query
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 5
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/artefacts/knowledge-base:
+    post:
+      tags:
+      - v1 / artefacts
+      summary: Create Knowledge Base Entry
+      description: Create a knowledge base entry
+      operationId: create_knowledge_base_entry_api_v1_artefacts_knowledge_base_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_create_knowledge_base_entry_api_v1_artefacts_knowledge_base_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - v1 / artefacts
+      summary: Get Knowledge Base
+      description: Get knowledge base entries
+      operationId: get_knowledge_base_api_v1_artefacts_knowledge_base_get
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/config:
+    get:
+      tags:
+      - v1 / admin
+      summary: Get All Config
+      operationId: get_all_config_api_v1_admin_config_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/config/{config_key}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Config
+      operationId: update_config_api_v1_admin_config__config_key__put
+      parameters:
+      - name: config_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Config Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfigUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Users
+      operationId: list_users_api_v1_admin_users_get
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create User
+      operationId: create_user_api_v1_admin_users_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users/{user_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update User
+      operationId: update_user_api_v1_admin_users__user_id__put
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Deactivate User
+      operationId: deactivate_user_api_v1_admin_users__user_id__delete
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users/{user_id}/reset-password:
+    post:
+      tags:
+      - v1 / admin
+      summary: Reset Password
+      operationId: reset_password_api_v1_admin_users__user_id__reset_password_post
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPasswordReset'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/domains:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Domains
+      operationId: list_domains_api_v1_admin_domains_get
+      parameters:
+      - name: include_inactive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Include Inactive
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/domains/{domain_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Domain
+      operationId: update_domain_api_v1_admin_domains__domain_id__put
+      parameters:
+      - name: domain_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/artefact-types:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Artefact Types
+      operationId: list_artefact_types_api_v1_admin_artefact_types_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Artefact Type
+      operationId: create_artefact_type_api_v1_admin_artefact_types_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtefactTypeCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/artefact-types/{artefact_type_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Artefact Type
+      operationId: update_artefact_type_api_v1_admin_artefact_types__artefact_type_id__put
+      parameters:
+      - name: artefact_type_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artefact Type Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtefactTypeUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Artefact Type
+      operationId: delete_artefact_type_api_v1_admin_artefact_types__artefact_type_id__delete
+      parameters:
+      - name: artefact_type_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artefact Type Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/ptx-gates:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Ptx Gates
+      operationId: list_ptx_gates_api_v1_admin_ptx_gates_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Ptx Gate
+      operationId: create_ptx_gate_api_v1_admin_ptx_gates_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PtxGateCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/ptx-gates/{gate_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Ptx Gate
+      operationId: update_ptx_gate_api_v1_admin_ptx_gates__gate_id__put
+      parameters:
+      - name: gate_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Gate Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PtxGateUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Ptx Gate
+      operationId: delete_ptx_gate_api_v1_admin_ptx_gates__gate_id__delete
+      parameters:
+      - name: gate_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Gate Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/dispositions:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Dispositions
+      operationId: list_dispositions_api_v1_admin_dispositions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Disposition
+      operationId: create_disposition_api_v1_admin_dispositions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/dispositions/{disp_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Disposition
+      operationId: update_disposition_api_v1_admin_dispositions__disp_id__put
+      parameters:
+      - name: disp_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disp Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Disposition
+      operationId: delete_disposition_api_v1_admin_dispositions__disp_id__delete
+      parameters:
+      - name: disp_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disp Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/ea-principles:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Ea Principles
+      operationId: list_ea_principles_api_v1_admin_ea_principles_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Ea Principle
+      operationId: create_ea_principle_api_v1_admin_ea_principles_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EAPrincipleCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/ea-principles/{principle_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Ea Principle
+      operationId: update_ea_principle_api_v1_admin_ea_principles__principle_id__put
+      parameters:
+      - name: principle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Principle Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EAPrincipleUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Ea Principle
+      operationId: delete_ea_principle_api_v1_admin_ea_principles__principle_id__delete
+      parameters:
+      - name: principle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Principle Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/checklist/subsections:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Subsections
+      operationId: list_subsections_api_v1_admin_checklist_subsections_get
+      parameters:
+      - name: domain_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Subsection
+      operationId: create_subsection_api_v1_admin_checklist_subsections_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistSubsectionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/checklist/subsections/{sub_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Subsection
+      operationId: update_subsection_api_v1_admin_checklist_subsections__sub_id__put
+      parameters:
+      - name: sub_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Sub Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistSubsectionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Subsection
+      operationId: delete_subsection_api_v1_admin_checklist_subsections__sub_id__delete
+      parameters:
+      - name: sub_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Sub Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/checklist/questions:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Questions
+      operationId: list_questions_api_v1_admin_checklist_questions_get
+      parameters:
+      - name: subsection_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Subsection Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Question
+      operationId: create_question_api_v1_admin_checklist_questions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistQuestionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/checklist/questions/{q_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Question
+      operationId: update_question_api_v1_admin_checklist_questions__q_id__put
+      parameters:
+      - name: q_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Q Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistQuestionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Question
+      operationId: delete_question_api_v1_admin_checklist_questions__q_id__delete
+      parameters:
+      - name: q_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Q Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/analytics/summary:
+    get:
+      tags:
+      - v1 / admin
+      summary: Get Analytics Summary
+      operationId: get_analytics_summary_api_v1_admin_analytics_summary_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/analytics/domains:
+    get:
+      tags:
+      - v1 / admin
+      summary: Get Domain Analytics
+      operationId: get_domain_analytics_api_v1_admin_analytics_domains_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/analytics/recent-reviews:
+    get:
+      tags:
+      - v1 / admin
+      summary: Get Recent Reviews
+      operationId: get_recent_reviews_api_v1_admin_analytics_recent_reviews_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/audit-log:
+    get:
+      tags:
+      - v1 / admin
+      summary: Get Audit Log
+      operationId: get_audit_log_api_v1_admin_audit_log_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/prompts:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Prompts
+      operationId: list_prompts_api_v1_admin_prompts_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/prompts/{prompt_key}/history:
+    get:
+      tags:
+      - v1 / admin
+      summary: Get Prompt History
+      operationId: get_prompt_history_api_v1_admin_prompts__prompt_key__history_get
+      parameters:
+      - name: prompt_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/prompts/{prompt_key}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Save Prompt
+      operationId: save_prompt_api_v1_admin_prompts__prompt_key__put
+      parameters:
+      - name: prompt_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptTemplateCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/prompts/{prompt_key}/revert/{version}:
+    post:
+      tags:
+      - v1 / admin
+      summary: Revert Prompt
+      operationId: revert_prompt_api_v1_admin_prompts__prompt_key__revert__version__post
+      parameters:
+      - name: prompt_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Key
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/kb:
+    get:
+      tags:
+      - v1 / admin
+      summary: List Kb Entries
+      operationId: list_kb_entries_api_v1_admin_kb_get
+      parameters:
+      - name: include_inactive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Inactive
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v1 / admin
+      summary: Create Kb Entry
+      operationId: create_kb_entry_api_v1_admin_kb_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KbEntryCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/kb/{entry_id}:
+    put:
+      tags:
+      - v1 / admin
+      summary: Update Kb Entry
+      operationId: update_kb_entry_api_v1_admin_kb__entry_id__put
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Entry Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KbEntryUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v1 / admin
+      summary: Delete Kb Entry
+      operationId: delete_kb_entry_api_v1_admin_kb__entry_id__delete
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Entry Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/auth/login:
+    post:
+      tags:
+      - v2 / authentication
+      summary: Login
+      operationId: login_api_v2_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_api_v2_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/auth/demo-users:
+    get:
+      tags:
+      - v2 / authentication
+      summary: Get Demo Users
+      description: Return information about default users in the database
+      operationId: get_demo_users_api_v2_auth_demo_users_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v2/metadata/steps:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Steps
+      description: Get all submission steps
+      operationId: get_steps_api_v2_metadata_steps_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/domains:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Domains
+      description: Get all domains
+      operationId: get_domains_api_v2_metadata_domains_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/domains/seq-number/{seq_number}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Domain By Seq Number
+      description: Get a domain by its sequence number
+      operationId: get_domain_by_seq_number_api_v2_metadata_domains_seq_number__seq_number__get
+      parameters:
+      - name: seq_number
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Seq Number
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/domains/step/{step_id}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Domains For Step
+      description: Get domains for a specific step
+      operationId: get_domains_for_step_api_v2_metadata_domains_step__step_id__get
+      parameters:
+      - name: step_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Step Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/domains/step-mapping:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Step To Domain Mapping
+      description: Get mapping of step_order to domain_slug
+      operationId: get_step_to_domain_mapping_api_v2_metadata_domains_step_mapping_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/artefact-types:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Artefact Types
+      description: Get all artefact types
+      operationId: get_artefact_types_api_v2_metadata_artefact_types_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/artefact-templates/domain/{domain_slug}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Artefact Templates
+      description: Get artefact templates for a specific domain
+      operationId: get_artefact_templates_api_v2_metadata_artefact_templates_domain__domain_slug__get
+      parameters:
+      - name: domain_slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Slug
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/checklist-subsections/domain/{domain_slug}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Checklist Subsections
+      description: Get checklist subsections for a specific domain
+      operationId: get_checklist_subsections_api_v2_metadata_checklist_subsections_domain__domain_slug__get
+      parameters:
+      - name: domain_slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Slug
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/ptx-gates:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Ptx Gates
+      description: Get all PTX gates
+      operationId: get_ptx_gates_api_v2_metadata_ptx_gates_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/architecture-dispositions:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Architecture Dispositions
+      description: Get all architecture dispositions
+      operationId: get_architecture_dispositions_api_v2_metadata_architecture_dispositions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/ea-principles:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Ea Principles
+      description: Get all EA principles
+      operationId: get_ea_principles_api_v2_metadata_ea_principles_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/ea-principles/domain/{domain_slug}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Ea Principles For Domain
+      description: Get EA principles for a specific domain
+      operationId: get_ea_principles_for_domain_api_v2_metadata_ea_principles_domain__domain_slug__get
+      parameters:
+      - name: domain_slug
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Slug
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/form-fields/step/{step_id}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Form Fields
+      description: Get form fields for a specific step
+      operationId: get_form_fields_api_v2_metadata_form_fields_step__step_id__get
+      parameters:
+      - name: step_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Step Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/question-options/question/{question_id}:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get Question Options
+      description: Get question options for a specific question
+      operationId: get_question_options_api_v2_metadata_question_options_question__question_id__get
+      parameters:
+      - name: question_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Question Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/question-options:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get All Question Options
+      description: Get all question options
+      operationId: get_all_question_options_api_v2_metadata_question_options_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/metadata/all:
+    get:
+      tags:
+      - v2 / metadata
+      summary: Get All Metadata
+      description: Get all metadata in a single call
+      operationId: get_all_metadata_api_v2_metadata_all_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/submissions:
+    get:
+      tags:
+      - v2 / submissions
+      summary: Get Submissions
+      description: Get all ARB submissions
+      operationId: get_submissions_api_v2_submissions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / submissions
+      summary: Create Submission
+      description: Create a new ARB submission
+      operationId: create_submission_api_v2_submissions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ARBSubmission'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/submissions/{submission_id}:
+    get:
+      tags:
+      - v2 / submissions
+      summary: Get Submission
+      description: Get a specific ARB submission
+      operationId: get_submission_api_v2_submissions__submission_id__get
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - v2 / submissions
+      summary: Update Submission
+      description: Update an existing ARB submission
+      operationId: update_submission_api_v2_submissions__submission_id__put
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ARBSubmission'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/submissions/{submission_id}/submit:
+    post:
+      tags:
+      - v2 / submissions
+      summary: Submit Submission
+      description: Submit ARB submission for review
+      operationId: submit_submission_api_v2_submissions__submission_id__submit_post
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/submissions/{submission_id}/artefacts:
+    post:
+      tags:
+      - v2 / submissions
+      summary: Upload Artefact
+      description: Upload an artefact for a submission
+      operationId: upload_artefact_api_v2_submissions__submission_id__artefacts_post
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_artefact_api_v2_submissions__submission_id__artefacts_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/submissions/{submission_id}/integration-catalogue:
+    post:
+      tags:
+      - v2 / submissions
+      summary: Upload Integration Catalogue
+      description: Upload integration catalogue (Excel/CSV)
+      operationId: upload_integration_catalogue_api_v2_submissions__submission_id__integration_catalogue_post
+      parameters:
+      - name: submission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Submission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_integration_catalogue_api_v2_submissions__submission_id__integration_catalogue_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews:
+    get:
+      tags:
+      - v2 / reviews
+      summary: Get Reviews
+      description: Get ARB reviews - all authenticated users can read
+      operationId: get_reviews_api_v2_reviews_get
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / reviews
+      summary: Create Review
+      description: Create a new ARB review with enhanced validation
+      operationId: create_review_api_v2_reviews_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Review Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews/{review_id}:
+    get:
+      tags:
+      - v2 / reviews
+      summary: Get Review
+      description: Get a specific ARB review with full domain breakdown for EA dossier
+        view.
+      operationId: get_review_api_v2_reviews__review_id__get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - v2 / reviews
+      summary: Update Review
+      description: Update an existing ARB review with enhanced validation - EA, ARB
+        Admin, and Solution Architect (for their own drafts)
+      operationId: update_review_api_v2_reviews__review_id__put
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Review Data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews/{review_id}/approve:
+    post:
+      tags:
+      - v2 / reviews
+      summary: Approve Review
+      description: Approve a review (EA approval) - EA and ARB Admin only
+      operationId: approve_review_api_v2_reviews__review_id__approve_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: override_rationale
+        in: query
+        required: false
+        schema:
+          type: string
+          title: Override Rationale
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews/{review_id}/override:
+    post:
+      tags:
+      - v2 / reviews
+      summary: Override Review
+      description: Override agent recommendation (EA override) - EA and ARB Admin
+        only
+      operationId: override_review_api_v2_reviews__review_id__override_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: decision
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Decision
+      - name: rationale
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Rationale
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews/{review_id}/open:
+    post:
+      tags:
+      - v2 / reviews
+      summary: Open Review For Ea
+      description: 'Gate 2 open: transition review_ready → ea_reviewing when EA opens
+        the dossier.'
+      operationId: open_review_for_ea_api_v2_reviews__review_id__open_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews/{review_id}/ea-decision:
+    post:
+      tags:
+      - v2 / reviews
+      summary: Submit Ea Decision
+      description: 'Submit Gate 2 EA decision: APPROVE | CONDITIONALLY_APPROVE | RETURN
+        | DEFER.'
+      operationId: submit_ea_decision_api_v2_reviews__review_id__ea_decision_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/reviews/{review_id}/overrides:
+    post:
+      tags:
+      - v2 / reviews
+      summary: Create Ea Override
+      description: Create a governed EA override with mandatory rationale and full
+        audit trail.
+      operationId: create_ea_override_api_v2_reviews__review_id__overrides_post
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - v2 / reviews
+      summary: Get Ea Overrides
+      description: Return EA overrides for a review, optionally filtered by override_type.
+      operationId: get_ea_overrides_api_v2_reviews__review_id__overrides_get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: override_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Override Type
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/agent/review:
+    post:
+      tags:
+      - v2 / agent
+      summary: Trigger Review
+      description: Trigger ARB review orchestrator and persist results.
+      operationId: trigger_review_api_v2_agent_review_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/agent/test-llm:
+    get:
+      tags:
+      - v2 / agent
+      summary: Test Llm
+      operationId: test_llm_api_v2_agent_test_llm_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/artefacts/artefacts/upload:
+    post:
+      tags:
+      - v2 / artefacts
+      summary: Upload Artefact
+      description: Upload an artefact for a review
+      operationId: upload_artefact_api_v2_artefacts_artefacts_upload_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_artefact_api_v2_artefacts_artefacts_upload_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/artefacts/artefacts/review/{review_id}:
+    get:
+      tags:
+      - v2 / artefacts
+      summary: Get Review Artefacts
+      description: Get all artefacts for a review
+      operationId: get_review_artefacts_api_v2_artefacts_artefacts_review__review_id__get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/artefacts/artefacts/chunks/{review_id}:
+    get:
+      tags:
+      - v2 / artefacts
+      summary: Get Review Chunks
+      description: Get relevant chunks for a review
+      operationId: get_review_chunks_api_v2_artefacts_artefacts_chunks__review_id__get
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Review Id
+      - name: domain_slug
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain Slug
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/artefacts/artefacts/{artefact_id}:
+    delete:
+      tags:
+      - v2 / artefacts
+      summary: Delete Artefact
+      description: Delete an artefact
+      operationId: delete_artefact_api_v2_artefacts_artefacts__artefact_id__delete
+      parameters:
+      - name: artefact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artefact Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/artefacts/knowledge-base/search:
+    get:
+      tags:
+      - v2 / artefacts
+      summary: Search Knowledge Base
+      description: Search knowledge base for relevant content
+      operationId: search_knowledge_base_api_v2_artefacts_knowledge_base_search_get
+      parameters:
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Query
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 5
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/artefacts/knowledge-base:
+    post:
+      tags:
+      - v2 / artefacts
+      summary: Create Knowledge Base Entry
+      description: Create a knowledge base entry
+      operationId: create_knowledge_base_entry_api_v2_artefacts_knowledge_base_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_create_knowledge_base_entry_api_v2_artefacts_knowledge_base_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - v2 / artefacts
+      summary: Get Knowledge Base
+      description: Get knowledge base entries
+      operationId: get_knowledge_base_api_v2_artefacts_knowledge_base_get
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/config:
+    get:
+      tags:
+      - v2 / admin
+      summary: Get All Config
+      operationId: get_all_config_api_v2_admin_config_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/config/{config_key}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Config
+      operationId: update_config_api_v2_admin_config__config_key__put
+      parameters:
+      - name: config_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Config Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfigUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/users:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Users
+      operationId: list_users_api_v2_admin_users_get
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create User
+      operationId: create_user_api_v2_admin_users_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/users/{user_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update User
+      operationId: update_user_api_v2_admin_users__user_id__put
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Deactivate User
+      operationId: deactivate_user_api_v2_admin_users__user_id__delete
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/users/{user_id}/reset-password:
+    post:
+      tags:
+      - v2 / admin
+      summary: Reset Password
+      operationId: reset_password_api_v2_admin_users__user_id__reset_password_post
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPasswordReset'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/domains:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Domains
+      operationId: list_domains_api_v2_admin_domains_get
+      parameters:
+      - name: include_inactive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Include Inactive
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/domains/{domain_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Domain
+      operationId: update_domain_api_v2_admin_domains__domain_id__put
+      parameters:
+      - name: domain_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/artefact-types:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Artefact Types
+      operationId: list_artefact_types_api_v2_admin_artefact_types_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Artefact Type
+      operationId: create_artefact_type_api_v2_admin_artefact_types_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtefactTypeCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/artefact-types/{artefact_type_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Artefact Type
+      operationId: update_artefact_type_api_v2_admin_artefact_types__artefact_type_id__put
+      parameters:
+      - name: artefact_type_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artefact Type Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtefactTypeUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Artefact Type
+      operationId: delete_artefact_type_api_v2_admin_artefact_types__artefact_type_id__delete
+      parameters:
+      - name: artefact_type_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artefact Type Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/ptx-gates:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Ptx Gates
+      operationId: list_ptx_gates_api_v2_admin_ptx_gates_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Ptx Gate
+      operationId: create_ptx_gate_api_v2_admin_ptx_gates_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PtxGateCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/ptx-gates/{gate_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Ptx Gate
+      operationId: update_ptx_gate_api_v2_admin_ptx_gates__gate_id__put
+      parameters:
+      - name: gate_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Gate Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PtxGateUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Ptx Gate
+      operationId: delete_ptx_gate_api_v2_admin_ptx_gates__gate_id__delete
+      parameters:
+      - name: gate_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Gate Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/dispositions:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Dispositions
+      operationId: list_dispositions_api_v2_admin_dispositions_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Disposition
+      operationId: create_disposition_api_v2_admin_dispositions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/dispositions/{disp_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Disposition
+      operationId: update_disposition_api_v2_admin_dispositions__disp_id__put
+      parameters:
+      - name: disp_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disp Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Disposition
+      operationId: delete_disposition_api_v2_admin_dispositions__disp_id__delete
+      parameters:
+      - name: disp_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disp Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/ea-principles:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Ea Principles
+      operationId: list_ea_principles_api_v2_admin_ea_principles_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Ea Principle
+      operationId: create_ea_principle_api_v2_admin_ea_principles_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EAPrincipleCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/ea-principles/{principle_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Ea Principle
+      operationId: update_ea_principle_api_v2_admin_ea_principles__principle_id__put
+      parameters:
+      - name: principle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Principle Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EAPrincipleUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Ea Principle
+      operationId: delete_ea_principle_api_v2_admin_ea_principles__principle_id__delete
+      parameters:
+      - name: principle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Principle Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/checklist/subsections:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Subsections
+      operationId: list_subsections_api_v2_admin_checklist_subsections_get
+      parameters:
+      - name: domain_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Subsection
+      operationId: create_subsection_api_v2_admin_checklist_subsections_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistSubsectionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/checklist/subsections/{sub_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Subsection
+      operationId: update_subsection_api_v2_admin_checklist_subsections__sub_id__put
+      parameters:
+      - name: sub_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Sub Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistSubsectionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Subsection
+      operationId: delete_subsection_api_v2_admin_checklist_subsections__sub_id__delete
+      parameters:
+      - name: sub_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Sub Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/checklist/questions:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Questions
+      operationId: list_questions_api_v2_admin_checklist_questions_get
+      parameters:
+      - name: subsection_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Subsection Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Question
+      operationId: create_question_api_v2_admin_checklist_questions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistQuestionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/checklist/questions/{q_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Question
+      operationId: update_question_api_v2_admin_checklist_questions__q_id__put
+      parameters:
+      - name: q_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Q Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistQuestionUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Question
+      operationId: delete_question_api_v2_admin_checklist_questions__q_id__delete
+      parameters:
+      - name: q_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Q Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/analytics/summary:
+    get:
+      tags:
+      - v2 / admin
+      summary: Get Analytics Summary
+      operationId: get_analytics_summary_api_v2_admin_analytics_summary_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/analytics/domains:
+    get:
+      tags:
+      - v2 / admin
+      summary: Get Domain Analytics
+      operationId: get_domain_analytics_api_v2_admin_analytics_domains_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/analytics/recent-reviews:
+    get:
+      tags:
+      - v2 / admin
+      summary: Get Recent Reviews
+      operationId: get_recent_reviews_api_v2_admin_analytics_recent_reviews_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/audit-log:
+    get:
+      tags:
+      - v2 / admin
+      summary: Get Audit Log
+      operationId: get_audit_log_api_v2_admin_audit_log_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/prompts:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Prompts
+      operationId: list_prompts_api_v2_admin_prompts_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/prompts/{prompt_key}/history:
+    get:
+      tags:
+      - v2 / admin
+      summary: Get Prompt History
+      operationId: get_prompt_history_api_v2_admin_prompts__prompt_key__history_get
+      parameters:
+      - name: prompt_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/prompts/{prompt_key}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Save Prompt
+      operationId: save_prompt_api_v2_admin_prompts__prompt_key__put
+      parameters:
+      - name: prompt_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptTemplateCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/prompts/{prompt_key}/revert/{version}:
+    post:
+      tags:
+      - v2 / admin
+      summary: Revert Prompt
+      operationId: revert_prompt_api_v2_admin_prompts__prompt_key__revert__version__post
+      parameters:
+      - name: prompt_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prompt Key
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/kb:
+    get:
+      tags:
+      - v2 / admin
+      summary: List Kb Entries
+      operationId: list_kb_entries_api_v2_admin_kb_get
+      parameters:
+      - name: include_inactive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Inactive
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - v2 / admin
+      summary: Create Kb Entry
+      operationId: create_kb_entry_api_v2_admin_kb_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KbEntryCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v2/admin/kb/{entry_id}:
+    put:
+      tags:
+      - v2 / admin
+      summary: Update Kb Entry
+      operationId: update_kb_entry_api_v2_admin_kb__entry_id__put
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Entry Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KbEntryUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - v2 / admin
+      summary: Delete Kb Entry
+      operationId: delete_kb_entry_api_v2_admin_kb__entry_id__delete
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Entry Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Root
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health Check
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    ARBSubmission:
+      properties:
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        project_name:
+          type: string
+          title: Project Name
+        solution_architect_id:
+          type: string
+          title: Solution Architect Id
+        status:
+          type: string
+          title: Status
+          default: draft
+        created_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created Date
+        submitted_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Submitted Date
+        problem_statement:
+          type: string
+          title: Problem Statement
+        stakeholders:
+          items:
+            type: string
+          type: array
+          title: Stakeholders
+        business_drivers:
+          items:
+            type: string
+          type: array
+          title: Business Drivers
+        growth_plans:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Plans
+        application_architecture:
+          anyOf:
+          - $ref: '#/components/schemas/DomainSection'
+          - type: 'null'
+        integration_architecture:
+          anyOf:
+          - $ref: '#/components/schemas/DomainSection'
+          - type: 'null'
+        data_architecture:
+          anyOf:
+          - $ref: '#/components/schemas/DomainSection'
+          - type: 'null'
+        security_architecture:
+          anyOf:
+          - $ref: '#/components/schemas/DomainSection'
+          - type: 'null'
+        infrastructure_architecture:
+          anyOf:
+          - $ref: '#/components/schemas/DomainSection'
+          - type: 'null'
+        devsecops:
+          anyOf:
+          - $ref: '#/components/schemas/DomainSection'
+          - type: 'null'
+        nfr_criteria:
+          items:
+            $ref: '#/components/schemas/NFRCriteria'
+          type: array
+          title: Nfr Criteria
+        overall_progress:
+          type: number
+          title: Overall Progress
+          default: 0.0
+      type: object
+      required:
+      - project_name
+      - solution_architect_id
+      - problem_statement
+      - stakeholders
+      - business_drivers
+      - nfr_criteria
+      title: ARBSubmission
+    Artefact:
+      properties:
+        id:
+          type: string
+          title: Id
+        file_name:
+          type: string
+          title: File Name
+        file_type:
+          type: string
+          title: File Type
+        file_size:
+          type: integer
+          title: File Size
+        system_label:
+          type: string
+          title: System Label
+        upload_date:
+          type: string
+          format: date-time
+          title: Upload Date
+        file_path:
+          type: string
+          title: File Path
+      type: object
+      required:
+      - id
+      - file_name
+      - file_type
+      - file_size
+      - system_label
+      - upload_date
+      - file_path
+      title: Artefact
+    ArtefactTypeCreate:
+      properties:
+        value:
+          type: string
+          title: Value
+        label:
+          type: string
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - value
+      - label
+      title: ArtefactTypeCreate
+    ArtefactTypeUpdate:
+      properties:
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: ArtefactTypeUpdate
+    Body_create_knowledge_base_entry_api_v1_artefacts_knowledge_base_post:
+      properties:
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        principle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Principle Id
+      type: object
+      required:
+      - title
+      - content
+      title: Body_create_knowledge_base_entry_api_v1_artefacts_knowledge_base_post
+    Body_create_knowledge_base_entry_api_v2_artefacts_knowledge_base_post:
+      properties:
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        principle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Principle Id
+      type: object
+      required:
+      - title
+      - content
+      title: Body_create_knowledge_base_entry_api_v2_artefacts_knowledge_base_post
+    Body_login_api_v1_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: ^password$
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_api_v1_auth_login_post
+    Body_login_api_v2_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: ^password$
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_api_v2_auth_login_post
+    Body_upload_artefact_api_v1_artefacts_artefacts_upload_post:
+      properties:
+        review_id:
+          type: string
+          title: Review Id
+        domain_slug:
+          type: string
+          title: Domain Slug
+        artefact_name:
+          type: string
+          title: Artefact Name
+        artefact_type:
+          type: string
+          title: Artefact Type
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - review_id
+      - domain_slug
+      - artefact_name
+      - artefact_type
+      - file
+      title: Body_upload_artefact_api_v1_artefacts_artefacts_upload_post
+    Body_upload_artefact_api_v1_submissions__submission_id__artefacts_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_artefact_api_v1_submissions__submission_id__artefacts_post
+    Body_upload_artefact_api_v2_artefacts_artefacts_upload_post:
+      properties:
+        review_id:
+          type: string
+          title: Review Id
+        domain_slug:
+          type: string
+          title: Domain Slug
+        artefact_name:
+          type: string
+          title: Artefact Name
+        artefact_type:
+          type: string
+          title: Artefact Type
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - review_id
+      - domain_slug
+      - artefact_name
+      - artefact_type
+      - file
+      title: Body_upload_artefact_api_v2_artefacts_artefacts_upload_post
+    Body_upload_artefact_api_v2_submissions__submission_id__artefacts_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_artefact_api_v2_submissions__submission_id__artefacts_post
+    Body_upload_integration_catalogue_api_v1_submissions__submission_id__integration_catalogue_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_integration_catalogue_api_v1_submissions__submission_id__integration_catalogue_post
+    Body_upload_integration_catalogue_api_v2_submissions__submission_id__integration_catalogue_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_integration_catalogue_api_v2_submissions__submission_id__integration_catalogue_post
+    ChecklistItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        question:
+          type: string
+          title: Question
+        answer:
+          $ref: '#/components/schemas/ChecklistOption'
+        evidence_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Evidence Notes
+      type: object
+      required:
+      - id
+      - question
+      - answer
+      title: ChecklistItem
+    ChecklistOption:
+      type: string
+      enum:
+      - compliant
+      - non_compliant
+      - partial
+      - na
+      title: ChecklistOption
+    ChecklistQuestionCreate:
+      properties:
+        subsection_id:
+          type: string
+          format: uuid
+          title: Subsection Id
+        question_code:
+          type: string
+          title: Question Code
+        question_text:
+          type: string
+          title: Question Text
+        question_type:
+          type: string
+          title: Question Type
+          default: compliance
+        help_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Help Text
+        is_required:
+          type: boolean
+          title: Is Required
+          default: false
+        sort_order:
+          type: integer
+          title: Sort Order
+          default: 0
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - subsection_id
+      - question_code
+      - question_text
+      title: ChecklistQuestionCreate
+    ChecklistQuestionUpdate:
+      properties:
+        question_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Question Text
+        question_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Question Type
+        help_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Help Text
+        is_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Required
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: ChecklistQuestionUpdate
+    ChecklistSubsectionCreate:
+      properties:
+        domain_id:
+          type: string
+          format: uuid
+          title: Domain Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        color_theme:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color Theme
+        sort_order:
+          type: integer
+          title: Sort Order
+          default: 0
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - domain_id
+      - name
+      title: ChecklistSubsectionCreate
+    ChecklistSubsectionUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        color_theme:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color Theme
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: ChecklistSubsectionUpdate
+    DispositionCreate:
+      properties:
+        value:
+          type: string
+          title: Value
+        label:
+          type: string
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        sort_order:
+          type: integer
+          title: Sort Order
+          default: 0
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - value
+      - label
+      title: DispositionCreate
+    DispositionUpdate:
+      properties:
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: DispositionUpdate
+    DomainSection:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        checklist_items:
+          items:
+            $ref: '#/components/schemas/ChecklistItem'
+          type: array
+          title: Checklist Items
+        integration_catalogue:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IntegrationCatalogueItem'
+            type: array
+          - type: 'null'
+          title: Integration Catalogue
+        artefacts:
+          items:
+            $ref: '#/components/schemas/Artefact'
+          type: array
+          title: Artefacts
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - domain
+      - checklist_items
+      - artefacts
+      title: DomainSection
+    DomainUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+        icon:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Reason
+      type: object
+      title: DomainUpdate
+    EAPrincipleCreate:
+      properties:
+        principle_code:
+          type: string
+          title: Principle Code
+        principle_name:
+          type: string
+          title: Principle Name
+        category:
+          type: string
+          title: Category
+        statement:
+          type: string
+          title: Statement
+        rationale:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rationale
+        implications:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Implications
+        items_to_verify:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Items To Verify
+        arb_weight:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Arb Weight
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - principle_code
+      - principle_name
+      - category
+      - statement
+      title: EAPrincipleCreate
+    EAPrincipleUpdate:
+      properties:
+        principle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Principle Name
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        statement:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Statement
+        rationale:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rationale
+        implications:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Implications
+        items_to_verify:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Items To Verify
+        arb_weight:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Arb Weight
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: EAPrincipleUpdate
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IntegrationCatalogueItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        system_name:
+          type: string
+          title: System Name
+        interface_type:
+          type: string
+          title: Interface Type
+        protocol:
+          type: string
+          title: Protocol
+        data_format:
+          type: string
+          title: Data Format
+        frequency:
+          type: string
+          title: Frequency
+        security:
+          type: string
+          title: Security
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - id
+      - system_name
+      - interface_type
+      - protocol
+      - data_format
+      - frequency
+      - security
+      title: IntegrationCatalogueItem
+    KbEntryCreate:
+      properties:
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        principle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Principle Id
+      type: object
+      required:
+      - title
+      - content
+      title: KbEntryCreate
+    KbEntryUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        principle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Principle Id
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: KbEntryUpdate
+    NFRCriteria:
+      properties:
+        category:
+          type: string
+          title: Category
+        criteria:
+          type: string
+          title: Criteria
+        target_value:
+          type: string
+          title: Target Value
+        actual_value:
+          type: string
+          title: Actual Value
+        score:
+          type: integer
+          maximum: 5.0
+          minimum: 1.0
+          title: Score
+        evidence:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Evidence
+      type: object
+      required:
+      - category
+      - criteria
+      - target_value
+      - actual_value
+      - score
+      title: NFRCriteria
+    PromptTemplateCreate:
+      properties:
+        prompt_key:
+          type: string
+          title: Prompt Key
+        prompt_type:
+          type: string
+          title: Prompt Type
+          default: system
+        domain_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain Code
+        content:
+          type: string
+          title: Content
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - prompt_key
+      - content
+      title: PromptTemplateCreate
+    PtxGateCreate:
+      properties:
+        value:
+          type: string
+          title: Value
+        label:
+          type: string
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        sort_order:
+          type: integer
+          title: Sort Order
+          default: 0
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - value
+      - label
+      title: PtxGateCreate
+    PtxGateUpdate:
+      properties:
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: PtxGateUpdate
+    SystemConfigUpdate:
+      properties:
+        config_value:
+          title: Config Value
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Reason
+      type: object
+      required:
+      - config_value
+      title: SystemConfigUpdate
+    Token:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+        user:
+          $ref: '#/components/schemas/User'
+      type: object
+      required:
+      - access_token
+      - token_type
+      - user
+      title: Token
+    User:
+      properties:
+        id:
+          type: string
+          title: Id
+        email:
+          type: string
+          title: Email
+        name:
+          type: string
+          title: Name
+        role:
+          $ref: '#/components/schemas/UserRole'
+      type: object
+      required:
+      - id
+      - email
+      - name
+      - role
+      title: User
+    UserCreate:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          minLength: 6
+          title: Password
+        role:
+          type: string
+          title: Role
+          default: solution_architect
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - email
+      - password
+      title: UserCreate
+    UserPasswordReset:
+      properties:
+        new_password:
+          type: string
+          minLength: 6
+          title: New Password
+      type: object
+      required:
+      - new_password
+      title: UserPasswordReset
+    UserRole:
+      type: string
+      enum:
+      - solution_architect
+      - enterprise_architect
+      - arb_admin
+      - super_admin
+      title: UserRole
+    UserUpdate:
+      properties:
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: UserUpdate
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

@@ -1,0 +1,2110 @@
+{
+  "source_review_id": "4102d0fd-e573-4928-b86a-44370de1efe4",
+  "exported_at": "2026-05-11T05:36:27.603022",
+  "review_envelope": {
+    "decision": "approve_with_conditions",
+    "aggregate_rag_score": 2,
+    "aggregate_rag_label": "red",
+    "recommended_decision": "approve_with_conditions",
+    "decision_rationale": "The panel acknowledges the Bank EDMS solution's adoption of modern architectural patterns, including microservices on AWS and robust CI/CD practices, as evidenced by the ADRs. However, we find significant gaps in critical security and compliance design elements. Specifically, the absence of detailed RBAC/IAM design, insufficient PKI and encryption strategy, and undefined regulatory compliance approaches present substantial risks that are not adequately addressed. Furthermore, the lack of a VAPT plan and detailed business NFRs prevents a complete assessment of operational security and alignment. To proceed, the solution architecture team must provide detailed design specifications for authentication, authorization, encryption, and compliance mapping, alongside a defined VAPT strategy and quantifiable business NFRs.",
+    "kb_sources_cited": [
+      "KB-01",
+      "KB-02",
+      "KB-03",
+      "KB-04",
+      "KB-05",
+      "KB-06",
+      "KB-07",
+      "KB-08",
+      "KB-09",
+      "KB-10",
+      "KB-02 | B-01",
+      "KB-03 | B-02",
+      "KB-04 | B-06",
+      "KB-09 | None",
+      "KB-01 | GOV-01",
+      "KB-02 | INT-03",
+      "KB-03 | INT-01",
+      "KB-05 | INT-02",
+      "KB-06 | GOV-05",
+      "KB-08 | SEC-01",
+      "KB-01 | D-STD-03",
+      "KB-03 | D-02",
+      "KB-04 | D-03",
+      "KB-05 | D-STD-08",
+      "KB-06 | D-STD-01",
+      "KB-07 | D-10",
+      "KB-08 | D-STD-10",
+      "KB-01 | I-10",
+      "KB-02 | I-01",
+      "KB-03 | I-02",
+      "KB-04 | I-03",
+      "KB-05 | I-07",
+      "KB-06 | I-08",
+      "KB-07 | None",
+      "KB-08 | I-04",
+      "KB-10 | G-03",
+      "KB-01 | Shift-Left Security",
+      "KB-02 | CI/CD Pipeline",
+      "KB-03 | Trunk-Based Development",
+      "KB-04 | Observability (Logs / Metrics / Traces)",
+      "KB-05 | Four Golden Signals",
+      "KB-06 | SLO / SLI / Error Budget",
+      "KB-07 | DORA Metrics",
+      "KB-01 | None",
+      "KB-02 | G-03",
+      "KB-03 | G-02",
+      "KB-04 | G-09"
+    ],
+    "tokens_used": 98124,
+    "solution_name": "Bank EDMS (enterprise document management system)"
+  },
+  "domain_scores": [
+    {
+      "domain": "application",
+      "score": 3,
+      "rag_label": "amber",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS is designed as a cloud-native, microservices-based platform on AWS, aligning with modern architectural principles. Key strengths include its microservices approach and focus on independent deployability. However, the submission lacks detailed evidence for compliance with enterprise standards, particularly regarding the tech stack and scalability. Further clarification on these areas is required before development can proceed without conditions.",
+      "compliant_areas": [
+        "ARCHITECTURE_STYLE \u2014 The solution is designed as a cloud-native, microservices-based platform on AWS, aligning with KB-02.",
+        "RESILIENCE_PATTERNS \u2014 The HLD mentions resilience design, indicating an awareness of the need for HA/failover."
+      ],
+      "gap_areas": [
+        "APP-F01: Tech stack compliance with Jakarta EE/Spring Boot standards.",
+        "APP-F02: Detailed scalability targets and validation evidence.",
+        "APP-F03: Compliance mapping to application controls and audit logging."
+      ],
+      "blocker_count": 0,
+      "action_count": 3,
+      "adr_count": 1,
+      "domain_specific_scores": null,
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01",
+        "KB-02",
+        "KB-03",
+        "KB-04",
+        "KB-06"
+      ]
+    },
+    {
+      "domain": "solution",
+      "score": 4,
+      "rag_label": "green",
+      "overall_readiness": "APPROVE",
+      "executive_summary": "The Bank EDMS initiative addresses significant regulatory and operational risks stemming from seven disparate document management systems. The proposed solution offers a clear path to consolidation, improved compliance, operational efficiency, and strategic alignment. Key strengths include a well-defined problem statement with measurable outcomes and adherence to core EA principles. While the design is sound, further detail on specific technology standards and economic TCO would enhance completeness.",
+      "compliant_areas": [
+        "PROBLEM_STATEMENT_QUALITY: Clear and well-quantified problem statement.",
+        "SOLUTION_FIT: Direct alignment between problem and proposed EDMS solution.",
+        "BUSINESS_OUTCOMES: SMART outcomes with measurable KPIs and timelines.",
+        "STAKEHOLDER_ALIGNMENT: Key stakeholders (LOB CIOs) identified.",
+        "STRATEGIC_FIT: Aligns with enterprise target state for consolidated, cloud-native platforms.",
+        "ARCHITECTURE_PRINCIPLES_ADHERENCE: Documented adherence to principles, patterns, and standards.",
+        "PROCESS_ADHERENCE: Consolidation decisions approved by Architecture Forum."
+      ],
+      "gap_areas": [
+        "SOL-F01: Incomplete detail on economic TCO analysis.",
+        "SOL-F02: Specific technology standards compliance needs further detail."
+      ],
+      "blocker_count": 0,
+      "action_count": 1,
+      "adr_count": 0,
+      "domain_specific_scores": {
+        "SOLUTION_FIT": 5,
+        "STRATEGIC_FIT": 5,
+        "BUSINESS_OUTCOMES": 5,
+        "STAKEHOLDER_ALIGNMENT": 4,
+        "PROBLEM_STATEMENT_QUALITY": 5
+      },
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01",
+        "KB-02",
+        "KB-03",
+        "KB-04",
+        "KB-05",
+        "KB-06",
+        "KB-07",
+        "KB-08",
+        "KB-09",
+        "KB-10"
+      ]
+    },
+    {
+      "domain": "business",
+      "score": 3,
+      "rag_label": "amber",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS solution aims to consolidate seven disparate document management systems into a single enterprise platform. The business case is well-articulated, highlighting significant operational inefficiencies and costs associated with the current fragmented approach. Key strengths include a defined domain model and operating model. However, critical areas such as Non-Functional Requirements (NFRs), detailed stakeholder analysis beyond a high-level map, and specific use case validation against customer needs require further elaboration. The current submission is partially compliant, necessitating conditions for approval.",
+      "compliant_areas": [
+        "Business Case: Problem statement and objectives are clear.",
+        "Business Scope: Use cases are identified.",
+        "Business Stakeholders: A high-level stakeholder map is provided."
+      ],
+      "gap_areas": [
+        "BUS-F01: Business NFRs lack detail and quantitative targets.",
+        "BUS-F02: Stakeholder analysis is high-level and needs deeper engagement validation.",
+        "BUS-F03: Business use cases require validation against customer needs."
+      ],
+      "blocker_count": 0,
+      "action_count": 3,
+      "adr_count": 0,
+      "domain_specific_scores": null,
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-02 | B-01",
+        "KB-03 | B-02",
+        "KB-04 | B-06",
+        "KB-09 | None"
+      ]
+    },
+    {
+      "domain": "integration",
+      "score": 3,
+      "rag_label": "amber",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS solution provides an initial integration catalogue and API catalog, demonstrating an understanding of integration principles. Key strengths include the documentation of inbound and outbound channels and adherence to some API design standards. However, critical gaps exist in the detailed design for security mechanisms, explicit adherence to standard protocols beyond REST, and a defined sunset policy for integrations. These areas require further architectural definition before full approval.",
+      "compliant_areas": [
+        "API_DESIGN_STANDARDS",
+        "IDEMPOTENCY"
+      ],
+      "gap_areas": [
+        "CATALOGUE_COMPLETENESS",
+        "INTEGRATION_SECURITY",
+        "NFR_COVERAGE"
+      ],
+      "blocker_count": 0,
+      "action_count": 3,
+      "adr_count": 1,
+      "domain_specific_scores": {
+        "IDEMPOTENCY": 5,
+        "NFR_COVERAGE": 3,
+        "API_DESIGN_STANDARDS": 4,
+        "INTEGRATION_SECURITY": 3,
+        "CATALOGUE_COMPLETENESS": 3
+      },
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01 | GOV-01",
+        "KB-02 | INT-03",
+        "KB-03 | INT-01",
+        "KB-05 | INT-02",
+        "KB-06 | GOV-05",
+        "KB-08 | SEC-01"
+      ]
+    },
+    {
+      "domain": "data",
+      "score": 3,
+      "rag_label": "amber",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS data architecture leverages purpose-built AWS services (S3, RDS, OpenSearch) for document storage, metadata, and search, with clear separation of concerns. Data classification and lifecycle management are designed but pending formal DPO sign-off for key datasets. While the core architecture is robust, the lack of final governance approvals and detailed lifecycle policies presents a risk. The solution is approved with conditions to finalize these critical governance elements before go-live.",
+      "compliant_areas": [
+        "Data Architecture Overview (Artefact 1, Section 1)",
+        "Core Data Model Design (Artefact 1, Section 2)",
+        "Data Lifecycle Design (Artefact 1, Section 4)",
+        "Data Governance Framework (Artefact 1, Section 5)"
+      ],
+      "gap_areas": [
+        "DAT-F01: Pending DPO Sign-off for Data Classification",
+        "DAT-F02: Incomplete Data Lifecycle Policy Details"
+      ],
+      "blocker_count": 0,
+      "action_count": 2,
+      "adr_count": 0,
+      "domain_specific_scores": null,
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01 | D-STD-03",
+        "KB-03 | D-02",
+        "KB-04 | D-03",
+        "KB-05 | D-STD-08",
+        "KB-06 | D-STD-01",
+        "KB-07 | D-10",
+        "KB-08 | D-STD-10"
+      ]
+    },
+    {
+      "domain": "infrastructure",
+      "score": 2,
+      "rag_label": "red",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS infrastructure is designed on AWS using EKS and provisioned entirely via AWS CDK TypeScript, adhering to IaC principles. It utilizes a two-region deployment for resilience. Key areas such as capacity planning, platform lifecycle, and interoperability are addressed to some extent. However, significant gaps exist in security controls, RBAC, PKI/encryption, and regulatory compliance, which require immediate attention. Operational aspects like detailed capacity planning and lifecycle management also need further refinement. The solution is approvable with conditions, pending resolution of critical security and compliance findings.",
+      "compliant_areas": [
+        "Infrastructure is 100% provisioned via AWS CDK TypeScript (IaC maturity).",
+        "Utilizes AWS EKS across two regions for High Availability and DR.",
+        "Istio service mesh for mTLS communication."
+      ],
+      "gap_areas": [
+        "INF-F01: No detailed RBAC/IAM design provided.",
+        "INF-F02: Insufficient detail on PKI and encryption strategy.",
+        "INF-F03: Lacks a comprehensive regulatory compliance approach.",
+        "INF-F04: Capacity planning details are high-level and require further elaboration.",
+        "INF-F05: Platform lifecycle management lacks specific details on patching and upgrades.",
+        "INF-F06: No specific Authn/Authz design provided."
+      ],
+      "blocker_count": 0,
+      "action_count": 6,
+      "adr_count": 1,
+      "domain_specific_scores": null,
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01 | I-10",
+        "KB-02 | I-01",
+        "KB-03 | I-02",
+        "KB-04 | I-03",
+        "KB-05 | I-07",
+        "KB-06 | I-08",
+        "KB-07 | None",
+        "KB-08 | I-04",
+        "KB-09 | None",
+        "KB-10 | G-03"
+      ]
+    },
+    {
+      "domain": "devsecops",
+      "score": 3,
+      "rag_label": "amber",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS solution presents a robust DevSecOps architecture centered around GitHub Actions and ArgoCD, emphasizing shift-left security and GitOps principles. The CI/CD pipeline design is sound, with clear gate conditions and an environment-agnostic approach. Key strengths include the documented quality strategy and adherence to core DevSecOps principles. However, the branching strategy and detailed quality gate configurations need further elaboration to ensure comprehensive architectural clarity and enable development teams effectively. The current design is approvable with conditions, requiring specific actions to address these gaps.",
+      "compliant_areas": [
+        "DevSecOps Architecture Principles",
+        "CI/CD Pipeline Architecture",
+        "Deployment Design",
+        "Identity, Secrets & Config Management",
+        "Threat Model Architecture"
+      ],
+      "gap_areas": [
+        "DSO-F01: Branching Strategy",
+        "DSO-F02: Quality Strategy Details"
+      ],
+      "blocker_count": 0,
+      "action_count": 2,
+      "adr_count": 1,
+      "domain_specific_scores": null,
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01 | Shift-Left Security",
+        "KB-02 | CI/CD Pipeline",
+        "KB-03 | Trunk-Based Development",
+        "KB-04 | Observability (Logs / Metrics / Traces)",
+        "KB-05 | Four Golden Signals",
+        "KB-06 | SLO / SLI / Error Budget",
+        "KB-07 | DORA Metrics"
+      ]
+    },
+    {
+      "domain": "nfr",
+      "score": 2,
+      "rag_label": "red",
+      "overall_readiness": "APPROVE_WITH_CONDITIONS",
+      "executive_summary": "The Bank EDMS solution has a defined DR strategy based on a warm standby model with acceptable RTO/RPO targets. However, critical security gaps exist, specifically regarding IAM policies for service accounts, which must be remediated before production. Additionally, a VAPT plan is missing, which is a mandatory requirement for security assurance. These issues require immediate attention to ensure the solution meets enterprise NFR standards.",
+      "compliant_areas": [
+        "DR design meets RTO/RPO targets and warm standby model.",
+        "Security Controls Register identifies specific IAM policy gaps."
+      ],
+      "gap_areas": [
+        "NFR-F01: Critical security gaps in service account IAM policies.",
+        "NFR-F02: Absence of a Vulnerability Assessment and Penetration Testing (VAPT) plan."
+      ],
+      "blocker_count": 1,
+      "action_count": 2,
+      "adr_count": 0,
+      "domain_specific_scores": {
+        "DR": {
+          "gaps": [],
+          "rag_label": "GREEN+",
+          "rag_score": 4,
+          "slo_target": "Defined RTO/RPO targets",
+          "actual_evidenced": "RTO 4 hours, RPO 1 hour",
+          "evidence_provided": [
+            "DR design based on warm standby across two AWS regions",
+            "Target RTO: 4 hours",
+            "Target RPO: 1 hour",
+            "DR runbook (INFRA-RB-001) authored and under review",
+            "DR drill scheduled Q3 2026 before production go-live"
+          ],
+          "is_mandatory_green": false,
+          "mitigating_condition": ""
+        },
+        "RBAC_IAM": {
+          "gaps": [
+            "Service accounts lack necessary LOB scope in IAM policies, posing a security risk."
+          ],
+          "rag_label": "RED",
+          "rag_score": 2,
+          "slo_target": "All service accounts must have least-privilege IAM policies.",
+          "actual_evidenced": "Identified 3 accounts missing scope, but not yet remediated.",
+          "evidence_provided": [
+            "ISSUE: 3 of 12 EDMS service accounts are missing LOB scope in their IAM policies."
+          ],
+          "is_mandatory_green": true,
+          "mitigating_condition": "Remediate IAM policies for all 3 service accounts to include LOB scope."
+        },
+        "VAPT_EVIDENCE": {
+          "gaps": [
+            "No Vulnerability Assessment and Penetration Testing (VAPT) plan provided."
+          ],
+          "rag_label": "AMBER",
+          "rag_score": 3,
+          "slo_target": "A VAPT plan must be in place before production go-live.",
+          "actual_evidenced": "No VAPT plan evidenced.",
+          "evidence_provided": [],
+          "is_mandatory_green": true,
+          "mitigating_condition": "Develop and submit a VAPT plan for review."
+        }
+      },
+      "evidence_quality": "PARTIAL",
+      "kb_references": [
+        "KB-01 | None",
+        "KB-02 | G-03",
+        "KB-03 | G-02",
+        "KB-04 | G-09"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "BUS-F03",
+      "domain": "business",
+      "domain_slug": "business",
+      "principle_id": "BUS-F03",
+      "severity": "minor",
+      "finding": "Section 3, 'Business Use Cases,' in '03_EDMS_Business_Case_BRD.docx' lists use cases, but there is no explicit evidence that these have been validated against actual customer needs or journey maps. This is a gap against KB-02 (Customer-Centricity).",
+      "recommendation": "Provide evidence or a plan to validate the listed business use cases against customer feedback, journey maps, or market research to confirm alignment with customer value.",
+      "check_category": "BUSINESS_SCOPE",
+      "title": "Business use cases require validation against customer needs.",
+      "rag_score": 3,
+      "evidence_source": "03_EDMS_Business_Case_BRD.docx, Section 3. Business Use Cases",
+      "standard_violated": "KB-02 | B-01 Customer-Centricity - Use cases must be validated against customer needs.",
+      "impact": "Risk that the EDMS may not fully address the needs of its end-users, leading to suboptimal adoption and value realization.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-02 | B-01"
+      ],
+      "artifact_ref": "03_EDMS_Business_Case_BRD.docx",
+      "kb_ref": "KB-02 | B-01"
+    },
+    {
+      "id": "APP-F01",
+      "domain": "application",
+      "domain_slug": "application",
+      "principle_id": "APP-F01",
+      "severity": "minor",
+      "finding": "The HLD states a microservices-based platform on AWS but does not explicitly detail the adherence to Jakarta EE 9+ or Spring Boot 3+ as per KB-01. Specifics on dependency injection, persistence, transaction management, and security frameworks need to be confirmed.",
+      "recommendation": "The Solution Architect must provide a detailed breakdown of the chosen tech stack, explicitly confirming adherence to KB-01 requirements for all core application services, or propose a justified deviation.",
+      "check_category": "TECH_STACK_COMPLIANCE",
+      "title": "Tech Stack Compliance: Jakarta EE/Spring Boot adherence requires clarification",
+      "rag_score": 3,
+      "evidence_source": "Artefact 1: 04_EDMS_HLD_Application_Architecture.docx",
+      "standard_violated": "Java Enterprise Edition (Jakarta EE) Application Standard (KB-01)",
+      "impact": "Potential for using non-standard or outdated frameworks, leading to increased technical debt, reduced maintainability, and potential security vulnerabilities.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-01"
+      ],
+      "artifact_ref": "Artefact 1: 04_EDMS_HLD_Application_Architecture.docx",
+      "kb_ref": "KB-01"
+    },
+    {
+      "id": "APP-F02",
+      "domain": "application",
+      "domain_slug": "application",
+      "principle_id": "APP-F02",
+      "severity": "minor",
+      "finding": "While the architecture is described as cloud-native and microservices-based, the HLD does not define specific scalability targets (e.g., TPS, concurrent users) or provide evidence of planned or actual performance testing, as required by KB-04.",
+      "recommendation": "The Solution Architect must document specific, measurable scalability targets for the EDMS and outline the plan for performance testing and validation, including expected outcomes.",
+      "check_category": "SCALABILITY_PERFORMANCE",
+      "title": "Scalability targets and validation evidence are missing",
+      "rag_score": 3,
+      "evidence_source": "Artefact 1: 04_EDMS_HLD_Application_Architecture.docx",
+      "standard_violated": "Scalability (Application) (KB-04)",
+      "impact": "Risk of performance bottlenecks under load, inability to meet business demand, and inefficient resource utilization.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-04"
+      ],
+      "artifact_ref": "Artefact 1: 04_EDMS_HLD_Application_Architecture.docx",
+      "kb_ref": "KB-04"
+    },
+    {
+      "id": "APP-F03",
+      "domain": "application",
+      "domain_slug": "application",
+      "principle_id": "APP-F03",
+      "severity": "minor",
+      "finding": "The HLD does not provide details on how applicable compliance frameworks will be mapped to application-level controls or the approach to audit logging, as required by KB-03.",
+      "recommendation": "The Solution Architect must document the specific compliance frameworks relevant to EDMS and detail how application controls will address them, along with a clear strategy for comprehensive audit logging.",
+      "check_category": "COMPLIANCE",
+      "title": "Application compliance mapping and audit logging approach not detailed",
+      "rag_score": 3,
+      "evidence_source": "Artefact 1: 04_EDMS_HLD_Application_Architecture.docx",
+      "standard_violated": "Compliance (Application) (KB-03)",
+      "impact": "Potential for non-compliance with regulatory requirements, leading to legal penalties, reputational damage, and audit failures. Inability to trace critical business events and user actions.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-03"
+      ],
+      "artifact_ref": "Artefact 1: 04_EDMS_HLD_Application_Architecture.docx",
+      "kb_ref": "KB-03"
+    },
+    {
+      "id": "INT-F01",
+      "domain": "integration",
+      "domain_slug": "integration",
+      "principle_id": "INT-F01",
+      "severity": "minor",
+      "finding": "The SA submission indicates adherence to API design standards for the EDMS Document Management API v1, including documentation and versioning.",
+      "recommendation": null,
+      "check_category": "API_DESIGN_STANDARDS",
+      "title": "API Design Standards Compliance Confirmed",
+      "rag_score": 4,
+      "evidence_source": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "standard_violated": null,
+      "impact": null,
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-05 | INT-02"
+      ],
+      "artifact_ref": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "kb_ref": "KB-05 | INT-02"
+    },
+    {
+      "id": "INT-F02",
+      "domain": "integration",
+      "domain_slug": "integration",
+      "principle_id": "INT-F02",
+      "severity": "minor",
+      "finding": "While the EDMS integration catalogue lists 4 inbound and 4 outbound channels, crucial metadata such as detailed data flows, specific NFRs for each, and owner information is not fully detailed for all entries.",
+      "recommendation": "Enhance the integration catalogue entries to include detailed data flows, specific NFRs, and assigned owners for all 8 integration channels.",
+      "check_category": "CATALOGUE_COMPLETENESS",
+      "title": "Incomplete Integration Catalogue Metadata for All Channels",
+      "rag_score": 3,
+      "evidence_source": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "standard_violated": "KB-02 | INT-03",
+      "impact": "Incomplete catalogue entries hinder impact analysis, dependency tracking, and overall integration landscape visibility.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-02 | INT-03"
+      ],
+      "artifact_ref": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "kb_ref": "KB-02 | INT-03"
+    },
+    {
+      "id": "INT-F03",
+      "domain": "integration",
+      "domain_slug": "integration",
+      "principle_id": "INT-F03",
+      "severity": "minor",
+      "finding": "The submission lacks explicit details on the authentication and authorization mechanisms used for integrations, and the adherence to standard protocols beyond REST is not fully detailed.",
+      "recommendation": "Provide detailed documentation on the authentication and authorization mechanisms for all integrations, and specify the standard protocols and data formats used for MQ and SFTP interfaces, aligning with KB-08 and KB-05.",
+      "check_category": "INTEGRATION_SECURITY",
+      "title": "Insufficient Detail on Security Mechanisms and Protocol Standards",
+      "rag_score": 3,
+      "evidence_source": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "standard_violated": "KB-08 | SEC-01, KB-05 | INT-02",
+      "impact": "Potential security vulnerabilities due to unconfirmed authentication/authorization, and interoperability issues if non-standard protocols/formats are used.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-08 | SEC-01",
+        "KB-05 | INT-02"
+      ],
+      "artifact_ref": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "kb_ref": "KB-08 | SEC-01, KB-05 | INT-02"
+    },
+    {
+      "id": "SOL-F01",
+      "domain": "solution",
+      "domain_slug": "solution",
+      "principle_id": "SOL-F01",
+      "severity": "minor",
+      "finding": "The solution states a targeted 25% TCO reduction but lacks a detailed breakdown of current vs. future state costs across development, maintenance, operations, infrastructure, and licensing. This level of detail is expected for significant strategic initiatives.",
+      "recommendation": "Provide a detailed TCO analysis comparing the aggregate cost of the seven current systems against the projected costs of the EDMS, broken down by category (development, operations, licensing, infrastructure, etc.).",
+      "check_category": "ECONOMICS_TCO",
+      "title": "Economic TCO analysis lacks detailed breakdown",
+      "rag_score": 3,
+      "evidence_source": "Business Drivers, Artefact 1 (Architecture Principles Standards)",
+      "standard_violated": "KB-01: Economics - Total Cost of Ownership",
+      "impact": "Potential for underestimation of project costs or overestimation of savings, impacting financial planning and business case validity.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-01"
+      ],
+      "artifact_ref": "Artefact 1: Architecture Principles Standards.docx (Section 7. Summary Assessment mentions TCO)",
+      "kb_ref": "KB-01"
+    },
+    {
+      "id": "SOL-F02",
+      "domain": "solution",
+      "domain_slug": "solution",
+      "principle_id": "SOL-F02",
+      "severity": "minor",
+      "finding": "Artefact 1 states compliance with technology standards but does not provide specific details on which standards are applied and how they are met by the EDMS components. While adherence is claimed, the evidence is high-level.",
+      "recommendation": "Augment the 'Technology Standards Compliance' section in Artefact 1 or a related document to explicitly list the enterprise technology standards applicable to EDMS and map EDMS components to them.",
+      "check_category": "ARCHITECTURE_PRINCIPLES_ADHERENCE",
+      "title": "Adherence to Technology Standards is stated but lacks specific detail",
+      "rag_score": 4,
+      "evidence_source": "Artefact 1: Architecture Principles Standards.docx",
+      "standard_violated": "KB-06: Engineer Solution With Strong Design Foundations - requires documented design decisions and adherence to patterns/standards.",
+      "impact": "Minor gap in documentation completeness; could lead to ambiguity for development teams regarding specific technology choices.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-06"
+      ],
+      "artifact_ref": "Artefact 1: Architecture Principles Standards.docx",
+      "kb_ref": "KB-06"
+    },
+    {
+      "id": "BUS-F01",
+      "domain": "business",
+      "domain_slug": "business",
+      "principle_id": "BUS-F01",
+      "severity": "minor",
+      "finding": "The Business NFR Register in '03_EDMS_Business_Case_BRD.docx' lists NFRs but lacks specific, measurable, achievable, relevant, and time-bound (SMART) targets. For example, security NFRs are descriptive ('User password specs / expiry / resets / locks') without defined parameters.",
+      "recommendation": "Define specific, quantitative targets for all NFRs, including performance metrics (latency, throughput), security requirements (password complexity, lockout thresholds), and availability targets.",
+      "check_category": "BUSINESS_NFRS",
+      "title": "Business NFRs lack specific quantitative targets and detail.",
+      "rag_score": 3,
+      "evidence_source": "03_EDMS_Business_Case_BRD.docx, Section 4. Business NFR Register",
+      "standard_violated": "KB-04 | B-06 Data-Driven Decision Making - implies NFRs should be measurable.",
+      "impact": "Lack of defined NFRs can lead to under-designing for critical capabilities, resulting in performance issues, security vulnerabilities, or unmet business expectations.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-04 | B-06"
+      ],
+      "artifact_ref": "03_EDMS_Business_Case_BRD.docx",
+      "kb_ref": "KB-04 | B-06"
+    },
+    {
+      "id": "BUS-F02",
+      "domain": "business",
+      "domain_slug": "business",
+      "principle_id": "BUS-F02",
+      "severity": "minor",
+      "finding": "Section 7, 'Stakeholder Map,' in '03_EDMS_Business_Case_BRD.docx' provides a list of stakeholders but lacks depth regarding their specific needs, influence, and how their input has been incorporated into the design. KB-09 implies a need for deeper engagement.",
+      "recommendation": "Expand the stakeholder analysis to include their specific roles, influence, concerns, and how their feedback has shaped the EDMS design. Document key engagement activities.",
+      "check_category": "BUSINESS_STAKEHOLDERS",
+      "title": "Stakeholder analysis is high-level and lacks validation of engagement.",
+      "rag_score": 3,
+      "evidence_source": "03_EDMS_Business_Case_BRD.docx, Section 7. Stakeholder Map",
+      "standard_violated": "KB-09 | None - Architecture Review Taxonomy: Business Stakeholders requires detailed analysis and impact assessment.",
+      "impact": "Potential for overlooking critical requirements, resistance to adoption, and misalignment between the solution and business expectations.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-09 | None"
+      ],
+      "artifact_ref": "03_EDMS_Business_Case_BRD.docx",
+      "kb_ref": "KB-09 | None"
+    },
+    {
+      "id": "INT-F04",
+      "domain": "integration",
+      "domain_slug": "integration",
+      "principle_id": "INT-F04",
+      "severity": "minor",
+      "finding": "The solution architecture does not include a defined sunset policy for its integrations, which is a requirement for managing the integration lifecycle.",
+      "recommendation": "Develop and document a sunset policy for all 8 integration channels, including defined sunset dates, communication strategies, and migration support.",
+      "check_category": "NFR_COVERAGE",
+      "title": "Missing Sunset Policy for Integrations",
+      "rag_score": 3,
+      "evidence_source": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "standard_violated": "KB-06 | GOV-05",
+      "impact": "Risk of accumulating technical debt, increased maintenance burden, and lack of clarity for consumers regarding the longevity of integration services.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-06 | GOV-05"
+      ],
+      "artifact_ref": "05_EDMS_Integration_Catalogue_API_Catalog.docx",
+      "kb_ref": "KB-06 | GOV-05"
+    },
+    {
+      "id": "DAT-F01",
+      "domain": "data",
+      "domain_slug": "data",
+      "principle_id": "DAT-F01",
+      "severity": "minor",
+      "finding": "The Data Classification Register indicates pending DPO sign-off for several critical datasets (Retail Banking KYC, FCA Compliance filings, Risk Model docs) due to ongoing reviews of PII disposal and S3 bucket provisioning.",
+      "recommendation": "Expedite DPO review and approval for the pending data classifications, ensuring remediation of identified issues (e.g., UK S3 bucket provisioning).",
+      "check_category": "DATA_CLASSIFICATION",
+      "title": "Pending DPO Sign-off for Data Classification",
+      "rag_score": 3,
+      "evidence_source": "08_EDMS_Data_Architecture.docx, Section 3",
+      "standard_violated": "D-STD-03 Data Classification and Handling Standard",
+      "impact": "Potential non-compliance with data handling regulations and internal policies, risk of inappropriate data exposure or processing for sensitive data.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-01 | D-STD-03"
+      ],
+      "artifact_ref": "08_EDMS_Data_Architecture.docx, Section 3",
+      "kb_ref": "KB-01 | D-STD-03"
+    },
+    {
+      "id": "DAT-F02",
+      "domain": "data",
+      "domain_slug": "data",
+      "principle_id": "DAT-F02",
+      "severity": "minor",
+      "finding": "While a Retention Policy Engine Design is mentioned, the Artefact 1, Section 4.2 lacks specific details on the defined retention periods, archival strategies, and disposal mechanisms for different data classifications.",
+      "recommendation": "Detail the data lifecycle policies, including specific retention periods, archival procedures, and secure disposal methods, aligned with data classifications.",
+      "check_category": "DATA_LIFECYCLE",
+      "title": "Incomplete Data Lifecycle Policy Details",
+      "rag_score": 3,
+      "evidence_source": "08_EDMS_Data_Architecture.docx, Section 4.2",
+      "standard_violated": "D-STD-03 Data Classification and Handling Standard",
+      "impact": "Inconsistent application of data retention and disposal, potential for data to be held longer than necessary (compliance/cost risk) or disposed of prematurely (business risk).",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-01 | D-STD-03"
+      ],
+      "artifact_ref": "08_EDMS_Data_Architecture.docx, Section 4.2",
+      "kb_ref": "KB-01 | D-STD-03"
+    },
+    {
+      "id": "INF-F01",
+      "domain": "infrastructure",
+      "domain_slug": "infrastructure",
+      "principle_id": "G-06",
+      "severity": "major",
+      "finding": "The submission lacks a detailed design for Role-Based Access Control (RBAC) and Identity and Access Management (IAM) for the EDMS infrastructure. This is a critical gap for secure access management.",
+      "recommendation": "Provide a detailed RBAC/IAM design document outlining roles, permissions, and access policies for all infrastructure components and services.",
+      "check_category": "RBAC_IAM",
+      "title": "RBAC/IAM design is absent in the submission",
+      "rag_score": 2,
+      "evidence_source": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx, Section 1.7",
+      "standard_violated": "Enterprise Security Standards, RBAC/IAM Design Principles",
+      "impact": "Potential for unauthorized access, privilege escalation, and security breaches due to undefined access controls.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-09 | None"
+      ],
+      "artifact_ref": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "kb_ref": "KB-09 | None - Architecture Review Taxonomy (RBAC/IAM)"
+    },
+    {
+      "id": "INF-F02",
+      "domain": "infrastructure",
+      "domain_slug": "infrastructure",
+      "principle_id": "G-06",
+      "severity": "major",
+      "finding": "While mTLS is mentioned for pod-to-pod communication via Istio, the overall strategy for Public Key Infrastructure (PKI) and data encryption (at-rest and in-transit beyond mTLS) is not sufficiently detailed.",
+      "recommendation": "Document the comprehensive PKI strategy, including certificate lifecycle management, and the encryption approach for data at rest and in transit across all relevant infrastructure components.",
+      "check_category": "PKI_ENCRYPTION",
+      "title": "PKI and encryption strategy lacks sufficient detail",
+      "rag_score": 2,
+      "evidence_source": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx, Section 1.1",
+      "standard_violated": "Enterprise Cryptography Standards, Data Protection Policies",
+      "impact": "Potential for data exposure, compliance violations, and security vulnerabilities if encryption and PKI are not robustly designed and managed.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-09 | None"
+      ],
+      "artifact_ref": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "kb_ref": "KB-09 | None - Architecture Review Taxonomy (PKI/Encryption)"
+    },
+    {
+      "id": "INF-F03",
+      "domain": "infrastructure",
+      "domain_slug": "infrastructure",
+      "principle_id": "B-02",
+      "severity": "major",
+      "finding": "The submission does not clearly articulate how the infrastructure design meets specific regulatory compliance requirements relevant to a banking system.",
+      "recommendation": "Provide a dedicated section or document detailing the regulatory compliance strategy, mapping infrastructure controls to specific regulatory requirements.",
+      "check_category": "REGULATORY_COMPLIANCE",
+      "title": "Regulatory compliance approach is not clearly defined",
+      "rag_score": 2,
+      "evidence_source": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "standard_violated": "Regulatory Compliance Mandates for Financial Institutions",
+      "impact": "Risk of non-compliance, leading to significant fines, legal repercussions, and reputational damage.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-09 | None"
+      ],
+      "artifact_ref": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "kb_ref": "KB-09 | None - Architecture Review Taxonomy (Regulatory Compliance)"
+    },
+    {
+      "id": "INF-F04",
+      "domain": "infrastructure",
+      "domain_slug": "infrastructure",
+      "principle_id": "G-04",
+      "severity": "minor",
+      "finding": "The capacity plan (Section 5.2) provides LOB-specific estimates for Year 1 but lacks detail on auto-scaling configurations, headroom calculations, and periodic review processes.",
+      "recommendation": "Elaborate on auto-scaling configurations, define headroom targets, and outline the process for regular capacity planning reviews and adjustments.",
+      "check_category": "CAPACITY_PLANNING",
+      "title": "Capacity planning details are high-level",
+      "rag_score": 3,
+      "evidence_source": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx, Section 5.2",
+      "standard_violated": "KB-02 | I-01 Scalability (Infrastructure)",
+      "impact": "Potential for service degradation or over-provisioning if scaling is not adequately configured or monitored.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-02 | I-01"
+      ],
+      "artifact_ref": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "kb_ref": "KB-02 | I-01"
+    },
+    {
+      "id": "INF-F05",
+      "domain": "infrastructure",
+      "domain_slug": "infrastructure",
+      "principle_id": "G-09",
+      "severity": "minor",
+      "finding": "Section 6 'Platform Lifecycle Register' is present but lacks specific details on how patching, upgrades (EKS, Istio, OS), and end-of-life management will be handled.",
+      "recommendation": "Detail the processes and automation for patching, upgrading EKS, Istio, and underlying OS images, including testing and rollback procedures.",
+      "check_category": "PLATFORM_LIFECYCLE",
+      "title": "Platform lifecycle management lacks specific details",
+      "rag_score": 3,
+      "evidence_source": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx, Section 6",
+      "standard_violated": "KB-04 | I-03 Standardization (related to golden images and updates)",
+      "impact": "Security vulnerabilities due to unpatched systems, instability from outdated components, and potential operational disruption.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-04 | I-03"
+      ],
+      "artifact_ref": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "kb_ref": "KB-04 | I-03"
+    },
+    {
+      "id": "INF-F06",
+      "domain": "infrastructure",
+      "domain_slug": "infrastructure",
+      "principle_id": "G-06",
+      "severity": "major",
+      "finding": "The submission does not include a design for how users and services will authenticate to and be authorized by the infrastructure components.",
+      "recommendation": "Provide a clear design for authentication (e.g., SSO, OIDC) and authorization mechanisms for both human users and service accounts interacting with the infrastructure.",
+      "check_category": "AUTHN_AUTHZ",
+      "title": "Authentication and Authorization (Authn/Authz) design is missing",
+      "rag_score": 2,
+      "evidence_source": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "standard_violated": "Enterprise Authentication & Authorization Standards",
+      "impact": "Risk of unauthorized access to infrastructure and services, leading to potential data breaches or system compromise.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-09 | None"
+      ],
+      "artifact_ref": "09_EDMS_Infrastructure_Capacity_Platform_Lifecycle.docx",
+      "kb_ref": "KB-09 | None - Architecture Review Taxonomy (Authn/Authz)"
+    },
+    {
+      "id": "DSO-F01",
+      "domain": "devsecops",
+      "domain_slug": "devsecops",
+      "principle_id": "DSO-F01",
+      "severity": "minor",
+      "finding": "The document mentions a branching strategy but provides no details on its implementation or adherence to patterns like Trunk-Based Development, which is crucial for CI/CD.",
+      "recommendation": "Document the chosen branching strategy, including details on branch naming, merge process, and how it supports CI/CD and shift-left security.",
+      "check_category": "BRANCHING_STRATEGY",
+      "title": "Branching Strategy Lacks Detail",
+      "rag_score": 3,
+      "evidence_source": "10_EDMS_Engineering_DevSecOps_Pipeline.docx, Section 3",
+      "standard_violated": "Trunk-Based Development (KB-03) principles require clear definition and adherence.",
+      "impact": "Potential for integration issues, delayed feedback loops, and reduced CI/CD efficiency.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-03 | Trunk-Based Development"
+      ],
+      "artifact_ref": "10_EDMS_Engineering_DevSecOps_Pipeline.docx",
+      "kb_ref": "KB-03 | Trunk-Based Development"
+    },
+    {
+      "id": "DSO-F02",
+      "domain": "devsecops",
+      "domain_slug": "devsecops",
+      "principle_id": "DSO-F02",
+      "severity": "minor",
+      "finding": "The 'Quality Strategy' section outlines the intent but lacks specific details on the configuration and thresholds for the quality gates within the CI/CD pipeline.",
+      "recommendation": "Detail the specific quality gates, their associated thresholds (e.g., SAST vulnerability severity, minimum test coverage), and the conditions under which they block progression.",
+      "check_category": "CICD_PIPELINE_QUALITY",
+      "title": "Quality Strategy Lacks Specificity on Gate Configurations",
+      "rag_score": 3,
+      "evidence_source": "10_EDMS_Engineering_DevSecOps_Pipeline.docx, Section 6",
+      "standard_violated": "Effective CI/CD pipelines require clearly defined and configurable quality gates (KB-02).",
+      "impact": "Ambiguity in quality expectations can lead to inconsistent quality, potential security risks, and delays in deployment.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-02 | CI/CD Pipeline"
+      ],
+      "artifact_ref": "10_EDMS_Engineering_DevSecOps_Pipeline.docx",
+      "kb_ref": "KB-02 | CI/CD Pipeline"
+    },
+    {
+      "id": "NFR-F02",
+      "domain": "nfr",
+      "domain_slug": "nfr",
+      "principle_id": "NFR-F02",
+      "severity": "minor",
+      "finding": "The solution lacks a documented Vulnerability Assessment and Penetration Testing (VAPT) plan, which is a mandatory requirement for security assurance before production deployment.",
+      "recommendation": "Develop and submit a comprehensive VAPT plan, outlining scope, methodology, and timeline, for review and approval.",
+      "check_category": "VAPT_EVIDENCE",
+      "title": "Vulnerability Assessment and Penetration Testing (VAPT) Plan is Missing",
+      "rag_score": 3,
+      "evidence_source": "No VAPT plan found in submitted artifacts.",
+      "standard_violated": "Enterprise Security Testing Policy \u00a73.1 - Mandatory VAPT for Production Systems",
+      "impact": "Inability to proactively identify and address security vulnerabilities before deployment, increasing the risk of exploitation.",
+      "is_blocker": false,
+      "links_to_action_ids": [],
+      "links_to_adr_id": null,
+      "waiver_eligible": false,
+      "kb_reference": [
+        "KB-01 | None"
+      ],
+      "artifact_ref": "No VAPT plan found in submitted artifacts.",
+      "kb_ref": "KB-01 | None"
+    }
+  ],
+  "blockers": [],
+  "recommendations": [
+    {
+      "id": "APP-REC-02",
+      "domain": "APP",
+      "priority": "low",
+      "title": "Consider Ambassador Pattern for Legacy Integrations",
+      "rationale": "If EDMS needs to integrate with legacy systems that lack modern resilience features, the Ambassador pattern can provide an externalized solution.",
+      "approved_pattern_ref": "Ambassador (KB-07)",
+      "benefit": "Improves resilience of integrations without modifying the legacy systems.",
+      "implementation_hint": "Evaluate potential integration points where this pattern could be applied to enhance stability.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-07"
+      ]
+    },
+    {
+      "id": "SOL-REC-01",
+      "domain": "SOL",
+      "priority": "medium",
+      "title": "Enhance Economic TCO Analysis with Detailed Cost Breakdown",
+      "rationale": "While a 25% TCO reduction is modeled, a more granular breakdown of development, maintenance, operational, infrastructure, and licensing costs for the EDMS, compared to the aggregate of the seven current systems, would provide greater financial transparency and support for the investment.",
+      "approved_pattern_ref": "KB-01: Economics - Total Cost of Ownership",
+      "benefit": "Improved financial justification and clearer understanding of cost drivers for the EDMS.",
+      "implementation_hint": "Develop a detailed TCO model comparing current state aggregate costs with projected EDMS costs across key categories.",
+      "applies_to_finding_id": "SOL-F01",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-01"
+      ]
+    },
+    {
+      "id": "SOL-REC-02",
+      "domain": "SOL",
+      "priority": "low",
+      "title": "Document Specific Technology Standards Compliance in Detail",
+      "rationale": "The 'Architecture Principles Standards' document mentions compliance with technology standards but lacks specific details on which standards are applied and how. Explicitly mapping EDMS components to relevant enterprise technology standards (e.g., database, messaging, API gateway standards) would strengthen the design documentation.",
+      "approved_pattern_ref": "KB-06: Engineer Solution With Strong Design Foundations",
+      "benefit": "Clearer assurance of adherence to enterprise technology direction and reduced ambiguity for development teams.",
+      "implementation_hint": "Create a matrix or add a section to the 'Architecture Principles Standards' document detailing EDMS components and their alignment with specific enterprise technology standards.",
+      "applies_to_finding_id": "SOL-F02",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-06"
+      ]
+    },
+    {
+      "id": "SOL-REC-03",
+      "domain": "SOL",
+      "priority": "low",
+      "title": "Consider Implementing a Composable Architecture for Future Flexibility",
+      "rationale": "Given the goal of consolidating diverse document types and LOB requirements, exploring a more composable architecture for EDMS (as per KB-08) could offer greater flexibility in adapting to future LOB needs or regulatory changes by treating document management functions as independent, reusable components.",
+      "approved_pattern_ref": "KB-08: Composable Architecture",
+      "benefit": "Increased agility in adapting the EDMS to evolving business requirements and regulatory landscapes.",
+      "implementation_hint": "Identify potential modular components within the EDMS design (e.g., ingestion, search, retention policy engine) that could be independently developed and composed.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-08"
+      ]
+    },
+    {
+      "id": "BUS-REC-01",
+      "domain": "BUS",
+      "priority": "medium",
+      "title": "Enhance Business NFRs with Quantitative Targets and Baselines",
+      "rationale": "The current NFRs are descriptive; adding quantitative targets and baselines will provide measurable goals for the EDMS.",
+      "approved_pattern_ref": "KB-04 | B-06 Data-Driven Decision Making",
+      "benefit": "Ensures clarity on performance, security, and availability expectations, enabling better design and testing.",
+      "implementation_hint": "Define specific SLOs for latency, throughput, uptime, and security compliance for each NFR category.",
+      "applies_to_finding_id": "BUS-F01",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-04 | B-06"
+      ]
+    },
+    {
+      "id": "BUS-REC-02",
+      "domain": "BUS",
+      "priority": "medium",
+      "title": "Conduct Deeper Stakeholder Analysis and Engagement Validation",
+      "rationale": "A more detailed stakeholder analysis, including their specific needs and influence, will ensure broader buy-in and better alignment.",
+      "approved_pattern_ref": "KB-09 | None Architecture Review Taxonomy - Business Stakeholders",
+      "benefit": "Reduces risk of scope creep, ensures all critical perspectives are considered, and improves adoption.",
+      "implementation_hint": "Map stakeholders by influence and interest, and document how their feedback was incorporated into the design.",
+      "applies_to_finding_id": "BUS-F02",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-09 | None"
+      ]
+    },
+    {
+      "id": "BUS-REC-03",
+      "domain": "BUS",
+      "priority": "high",
+      "title": "Validate Business Use Cases with Customer Journey Mapping",
+      "rationale": "Explicitly linking use cases to customer journeys and needs ensures the EDMS delivers tangible customer value.",
+      "approved_pattern_ref": "KB-02 | B-01 Customer-Centricity",
+      "benefit": "Ensures the solution directly addresses customer pain points and enhances their experience, leading to higher adoption and satisfaction.",
+      "implementation_hint": "Create or reference customer journey maps that illustrate how the EDMS will be used and the value it provides at each touchpoint.",
+      "applies_to_finding_id": "BUS-F03",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-02 | B-01"
+      ]
+    },
+    {
+      "id": "APP-REC-01",
+      "domain": "APP",
+      "priority": "medium",
+      "title": "Adopt Plugin Architecture for Extensibility",
+      "rationale": "The EDMS could benefit from a plugin architecture to allow for independent development and deployment of new document types or workflows.",
+      "approved_pattern_ref": "Plugin Architecture (KB-08)",
+      "benefit": "Enhances modularity, reduces core system modification risk, and speeds up feature delivery.",
+      "implementation_hint": "Define clear extension points and APIs in the core EDMS for future plugin development.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-08"
+      ]
+    },
+    {
+      "id": "APP-REC-03",
+      "domain": "APP",
+      "priority": "medium",
+      "title": "Establish API Versioning Strategy",
+      "rationale": "To ensure backward compatibility and manage evolution of EDMS APIs, a clear versioning strategy is essential.",
+      "approved_pattern_ref": "Interoperability (KB-06)",
+      "benefit": "Prevents breaking changes for consumers and allows for controlled rollout of new API versions.",
+      "implementation_hint": "Define versioning approach (e.g., URL path, header) and communicate it in API documentation.",
+      "applies_to_finding_id": "APP-F01",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-06"
+      ]
+    },
+    {
+      "id": "INT-REC-01",
+      "domain": "INT",
+      "priority": "medium",
+      "title": "Adopt a Centralized API Gateway for All Integrations",
+      "rationale": "While the solution mentions API Gateway, explicitly routing all cross-domain and external integrations through it ensures consistent security, monitoring, and policy enforcement as per enterprise standards.",
+      "approved_pattern_ref": "KB-03 | INT-01",
+      "benefit": "Enhanced security posture, simplified management, and consistent application of policies across all integrations.",
+      "implementation_hint": "Review all inbound and outbound integration points to ensure they are configured to use the enterprise API Gateway.",
+      "applies_to_finding_id": "INT-F02",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-03 | INT-01"
+      ]
+    },
+    {
+      "id": "INT-REC-02",
+      "domain": "INT",
+      "priority": "low",
+      "title": "Standardize Non-REST Integration Protocols and Formats",
+      "rationale": "The solution mentions MQ and SFTP interfaces. Standardizing these with enterprise-approved formats (e.g., Avro, JSON Schema) and protocols will improve interoperability and reduce technical debt.",
+      "approved_pattern_ref": "KB-05 | INT-02",
+      "benefit": "Improved interoperability, maintainability, and reduced risk of using proprietary or outdated integration methods.",
+      "implementation_hint": "Document the specific message schemas and protocols used for MQ and SFTP interfaces and ensure they align with KB-05 standards.",
+      "applies_to_finding_id": "INT-F03",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-05 | INT-02"
+      ]
+    },
+    {
+      "id": "INT-REC-03",
+      "domain": "INT",
+      "priority": "medium",
+      "title": "Establish Formal Sunset Policy for Integrations",
+      "rationale": "A defined sunset policy is crucial for managing the integration lifecycle, preventing technical debt, and ensuring timely migration or decommissioning of integrations.",
+      "approved_pattern_ref": "KB-06 | GOV-05",
+      "benefit": "Proactive management of integration lifecycle, reduced maintenance overhead, and clear communication for consumers regarding integration longevity.",
+      "implementation_hint": "Define sunset dates, communication plans, and migration strategies for all 8 integration points (4 inbound, 4 outbound).",
+      "applies_to_finding_id": "INT-F03",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-06 | GOV-05"
+      ]
+    },
+    {
+      "id": "DAT-REC-01",
+      "domain": "DAT",
+      "priority": "medium",
+      "title": "Implement Automated Data Quality Monitoring for Metadata",
+      "rationale": "While binary storage is handled by S3, ensuring the quality and consistency of metadata synchronized across RDS and OpenSearch is crucial for search and lifecycle management.",
+      "approved_pattern_ref": "D-STD-08 Data Quality Monitoring and Remediation Standard",
+      "benefit": "Proactively identifies and resolves metadata inconsistencies, improving search accuracy and lifecycle policy enforcement.",
+      "implementation_hint": "Define data quality rules for metadata fields (e.g., completeness of classification tags, validity of dates) and integrate them into the synchronization process.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-05 | D-STD-08"
+      ]
+    },
+    {
+      "id": "DAT-REC-02",
+      "domain": "DAT",
+      "priority": "low",
+      "title": "Consider Data Mesh Principles for Future Evolution",
+      "rationale": "As the EDMS grows and potentially integrates with other enterprise systems, adopting a data mesh approach could decentralize data ownership and improve agility.",
+      "approved_pattern_ref": "Data Mesh (KB-02)",
+      "benefit": "Enhances scalability, domain autonomy, and data product discoverability.",
+      "implementation_hint": "Explore domain-oriented data product thinking for metadata and document access patterns.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-02 | None"
+      ]
+    },
+    {
+      "id": "INF-REC-01",
+      "domain": "INF",
+      "priority": "high",
+      "title": "Implement granular cost allocation tagging for all AWS resources",
+      "rationale": "Effective cost management and FinOps require precise tagging to attribute costs to specific services, teams, or projects.",
+      "approved_pattern_ref": "KB-08 | I-04 Cost Efficiency",
+      "benefit": "Improved cost visibility, accurate chargebacks, and identification of optimization opportunities.",
+      "implementation_hint": "Define a mandatory tagging strategy and enforce it via AWS Config or CDK policies.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-08 | I-04"
+      ]
+    },
+    {
+      "id": "INF-REC-02",
+      "domain": "INF",
+      "priority": "medium",
+      "title": "Adopt Chaos Engineering practices for resilience validation",
+      "rationale": "While resilience is designed, proactive testing through chaos engineering can uncover latent weaknesses before they impact production.",
+      "approved_pattern_ref": "KB-06 | I-08 Resilience",
+      "benefit": "Increased confidence in the system's ability to withstand failures and faster identification of resilience gaps.",
+      "implementation_hint": "Start with controlled experiments targeting specific failure scenarios (e.g., AZ outage, pod failures).",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-06 | I-08"
+      ]
+    },
+    {
+      "id": "INF-REC-03",
+      "domain": "INF",
+      "priority": "low",
+      "title": "Establish a formal automation maturity roadmap for infrastructure operations",
+      "rationale": "A roadmap will guide the continuous improvement of automation, ensuring consistent progress towards reducing manual toil and increasing operational efficiency.",
+      "approved_pattern_ref": "KB-05 | I-07 Automation",
+      "benefit": "Systematic enhancement of operational efficiency, reduced human error, and improved auditability.",
+      "implementation_hint": "Identify key manual processes and prioritize them for automation based on frequency, risk, and effort.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-05 | I-07"
+      ]
+    },
+    {
+      "id": "DSO-REC-01",
+      "domain": "DSO",
+      "priority": "medium",
+      "title": "Enhance Observability by Integrating Distributed Tracing",
+      "rationale": "While the solution outlines a quality strategy, explicit mention of distributed tracing would further improve the ability to diagnose issues across microservices, aligning with modern observability best practices.",
+      "approved_pattern_ref": "KB-04 | Observability (Logs / Metrics / Traces)",
+      "benefit": "Improved root cause analysis and performance monitoring across distributed systems.",
+      "implementation_hint": "Incorporate a distributed tracing solution (e.g., Jaeger, Zipkin) into the CI/CD pipeline and ensure services emit trace data.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-04 | Observability (Logs / Metrics / Traces)"
+      ]
+    },
+    {
+      "id": "DSO-REC-02",
+      "domain": "DSO",
+      "priority": "low",
+      "title": "Adopt DORA Metrics for Continuous Improvement",
+      "rationale": "The solution's CI/CD and quality gates are well-defined, but explicitly tracking DORA metrics can provide data-driven insights into delivery performance and identify areas for optimization.",
+      "approved_pattern_ref": "KB-07 | DORA Metrics",
+      "benefit": "Data-driven insights into deployment frequency, lead time, change failure rate, and MTTR to optimize the software delivery process.",
+      "implementation_hint": "Integrate tooling to automatically capture and visualize DORA metrics within the CI/CD platform.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-07 | DORA Metrics"
+      ]
+    },
+    {
+      "id": "DSO-REC-03",
+      "domain": "DSO",
+      "priority": "medium",
+      "title": "Formalize SLOs and Error Budgets for Quality Gates",
+      "rationale": "While quality gates are defined, formalizing them as Service Level Objectives (SLOs) with associated error budgets would provide a more objective and data-driven approach to managing releases and reliability.",
+      "approved_pattern_ref": "KB-06 | SLO / SLI / Error Budget",
+      "benefit": "Objective, data-driven approach to managing reliability and release velocity, enabling informed trade-offs.",
+      "implementation_hint": "Define specific SLIs for key quality gates and establish error budgets that influence release decisions.",
+      "applies_to_finding_id": "DSO-F02",
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-06 | SLO / SLI / Error Budget"
+      ]
+    },
+    {
+      "id": "NFR-REC-01",
+      "domain": "NFR",
+      "priority": "high",
+      "title": "Enhance DR Strategy with Regular Testing and Automation",
+      "rationale": "While the DR strategy is defined, regular, automated DR drills are crucial to validate its effectiveness and ensure RTO/RPO targets can be met under real-world conditions.",
+      "approved_pattern_ref": "Disaster Recovery Best Practices",
+      "benefit": "Increased confidence in business continuity, reduced recovery time in a disaster scenario, and identification of potential DR plan flaws.",
+      "implementation_hint": "Schedule automated DR drills quarterly and document the outcomes.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-01 | None"
+      ]
+    },
+    {
+      "id": "NFR-REC-02",
+      "domain": "NFR",
+      "priority": "medium",
+      "title": "Implement Comprehensive Observability for Performance and Reliability",
+      "rationale": "To proactively manage performance and reliability, the EDMS solution should incorporate robust logging, metrics, and tracing capabilities.",
+      "approved_pattern_ref": "Observability Patterns",
+      "benefit": "Improved troubleshooting, faster incident response, better capacity planning, and enhanced end-user experience.",
+      "implementation_hint": "Define key performance indicators (KPIs) and implement monitoring dashboards for critical system components.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-01 | None"
+      ]
+    },
+    {
+      "id": "NFR-REC-03",
+      "domain": "NFR",
+      "priority": "low",
+      "title": "Consider a Phased Approach for Future Enhancements",
+      "rationale": "Applying the 'Bias for Action' principle, future enhancements should be delivered in manageable increments, allowing for faster feedback and reducing the risk of large, complex deployments.",
+      "approved_pattern_ref": "KB-03 | G-02 - Bias For Action",
+      "benefit": "Faster time-to-market for new features, reduced development risk, and greater agility in responding to business needs.",
+      "implementation_hint": "Decompose future feature requests into smaller, deliverable user stories with clear acceptance criteria.",
+      "applies_to_finding_id": null,
+      "applies_to_adr_id": null,
+      "is_agent_generated": true,
+      "kb_source_ref": [
+        "KB-03 | G-02"
+      ]
+    }
+  ],
+  "nfr_scorecard": [
+    {
+      "nfr_category": "key_vault_secrets",
+      "rag_score": 2,
+      "rag_label": "red",
+      "evidence_provided": [],
+      "gaps": [
+        "No documented design for key vault and secrets management."
+      ],
+      "mitigating_condition": "Provide a detailed design for key vault and secrets management.",
+      "slo_target": "Secure and auditable management of all secrets and keys.",
+      "actual_evidenced": "Absent.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "dr",
+      "rag_score": 4,
+      "rag_label": "green+",
+      "evidence_provided": [
+        "DR design based on warm standby across two AWS regions",
+        "Target RTO: 4 hours",
+        "Target RPO: 1 hour",
+        "DR runbook (INFRA-RB-001) authored and under review",
+        "DR drill scheduled Q3 2026 before production go-live"
+      ],
+      "gaps": [],
+      "mitigating_condition": null,
+      "slo_target": "Defined RTO/RPO targets",
+      "actual_evidenced": "RTO 4 hours, RPO 1 hour",
+      "is_mandatory_green": true
+    },
+    {
+      "nfr_category": "rbac_iam",
+      "rag_score": 2,
+      "rag_label": "red",
+      "evidence_provided": [
+        "ISSUE: 3 of 12 EDMS service accounts are missing LOB scope in their IAM policies."
+      ],
+      "gaps": [
+        "Service accounts lack necessary LOB scope in IAM policies, posing a security risk."
+      ],
+      "mitigating_condition": "Remediate IAM policies for all 3 service accounts to include LOB scope.",
+      "slo_target": "All service accounts must have least-privilege IAM policies.",
+      "actual_evidenced": "Identified 3 accounts missing scope, but not yet remediated.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "vapt_evidence",
+      "rag_score": 3,
+      "rag_label": "amber",
+      "evidence_provided": [],
+      "gaps": [
+        "No Vulnerability Assessment and Penetration Testing (VAPT) plan provided."
+      ],
+      "mitigating_condition": "Develop and submit a VAPT plan for review.",
+      "slo_target": "A VAPT plan must be in place before production go-live.",
+      "actual_evidenced": "No VAPT plan evidenced.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "security",
+      "rag_score": 1,
+      "rag_label": "red",
+      "evidence_provided": [],
+      "gaps": [
+        "Missing architectural design for Authentication and Authorization (AUTHN_AUTHZ)",
+        "Missing architectural design for Key Vault and Secrets Management (KEY_VAULT_SECRETS)",
+        "Missing architectural design for PKI and Encryption (PKI_ENCRYPTION)",
+        "Missing architectural design for RBAC and IAM (RBAC_IAM)"
+      ],
+      "mitigating_condition": "Provide detailed architectural designs for AUTHN_AUTHZ, KEY_VAULT_SECRETS, PKI_ENCRYPTION, and RBAC_IAM.",
+      "slo_target": "Comprehensive security architecture design",
+      "actual_evidenced": "No architectural design evidence provided for core security domains.",
+      "is_mandatory_green": true
+    },
+    {
+      "nfr_category": "ha_resilience",
+      "rag_score": 4,
+      "rag_label": "green+",
+      "evidence_provided": [
+        "07_EDMS_NFR_HA_DR_Security_Controls.docx: DR design based on warm standby across two AWS regions.",
+        "07_EDMS_NFR_HA_DR_Security_Controls.docx: Targets RTO 4 hours and RPO 1 hour."
+      ],
+      "gaps": [],
+      "mitigating_condition": null,
+      "slo_target": "High Availability and resilience design",
+      "actual_evidenced": "DR strategy defined.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "devsecops_quality",
+      "rag_score": 3,
+      "rag_label": "amber",
+      "evidence_provided": [],
+      "gaps": [
+        "VAPT evidence is missing"
+      ],
+      "mitigating_condition": "Provide a VAPT plan.",
+      "slo_target": "VAPT plan and execution evidence",
+      "actual_evidenced": "No VAPT plan or evidence provided.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "engineering_excellence",
+      "rag_score": 4,
+      "rag_label": "green+",
+      "evidence_provided": [
+        "07_EDMS_NFR_HA_DR_Security_Controls.docx: DR runbook (INFRA-RB-001) authored and under review.",
+        "07_EDMS_NFR_HA_DR_Security_Controls.docx: DR drill is scheduled Q3 2026 before production go-live."
+      ],
+      "gaps": [],
+      "mitigating_condition": null,
+      "slo_target": "Documented operational procedures and testing plans",
+      "actual_evidenced": "DR runbook in review, DR drill planned.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "authn_authz",
+      "rag_score": 2,
+      "rag_label": "red",
+      "evidence_provided": [
+        "07_EDMS_NFR_HA_DR_Security_Controls.docx mentions: 'ISSUE: 3 of 12 EDMS service accounts are missing LOB scope in their IAM policies. These must be remediated before production. See Action ACT-02.'"
+      ],
+      "gaps": [
+        "Incomplete IAM policy scope for service accounts."
+      ],
+      "mitigating_condition": "Remediate IAM policies to include full LOB scope.",
+      "slo_target": "All service accounts must have precisely defined IAM policies with appropriate scope.",
+      "actual_evidenced": "Partial evidence, with identified gaps.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "pki_encryption",
+      "rag_score": 2,
+      "rag_label": "red",
+      "evidence_provided": [],
+      "gaps": [
+        "No documented design for encryption at rest and in transit.",
+        "No explicit design for PKI and certificate management."
+      ],
+      "mitigating_condition": "Provide detailed design for encryption at rest/in transit and PKI/certificate management.",
+      "slo_target": "Data encrypted at rest and in transit using approved algorithms; robust PKI management.",
+      "actual_evidenced": "Absent.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "regulatory_compliance",
+      "rag_score": 4,
+      "rag_label": "green+",
+      "evidence_provided": [
+        "The DR design and security controls document implies adherence to general compliance requirements by addressing RTO/RPO and security issues."
+      ],
+      "gaps": [],
+      "mitigating_condition": null,
+      "slo_target": "Compliance with all relevant financial regulations and data privacy laws.",
+      "actual_evidenced": "Sufficient for this stage, pending resolution of other security findings.",
+      "is_mandatory_green": false
+    },
+    {
+      "nfr_category": "scalability_performance",
+      "rag_score": 2,
+      "rag_label": "red",
+      "evidence_provided": [],
+      "gaps": [
+        "Absence of detailed design for scalability and performance, including capacity planning and load balancing strategies."
+      ],
+      "mitigating_condition": "Provide a detailed design for scalability and performance.",
+      "slo_target": "System must meet defined performance and scalability SLOs under expected load.",
+      "actual_evidenced": "Absent.",
+      "is_mandatory_green": false
+    }
+  ],
+  "actions": [
+    {
+      "id": "SOL-ACT-01",
+      "domain": "SOL",
+      "action_type": "documentation",
+      "title": "Provide detailed TCO analysis for EDMS",
+      "action": "Develop and submit a detailed Total Cost of Ownership (TCO) analysis for the EDMS, comparing the aggregate costs of the seven current systems with the projected costs of the EDMS. The analysis should break down costs by category (development, operations, licensing, infrastructure, etc.) and provide supporting data for the claimed 25% reduction.",
+      "action_text": "Develop and submit a detailed Total Cost of Ownership (TCO) analysis for the EDMS, comparing the aggregate costs of the seven current systems with the projected costs of the EDMS. The analysis should break down costs by category (development, operations, licensing, infrastructure, etc.) and provide supporting data for the claimed 25% reduction.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of submitted TCO analysis document.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "SOL-F01",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "BUS-ACT-01",
+      "domain": "BUS",
+      "action_type": "amber_condition",
+      "title": "Define quantitative targets for all Business NFRs.",
+      "action": "Update Section 4 of the '03_EDMS_Business_Case_BRD.docx' to include specific, measurable, achievable, relevant, and time-bound (SMART) targets for all listed NFRs, including performance, security, and availability.",
+      "action_text": "Update Section 4 of the '03_EDMS_Business_Case_BRD.docx' to include specific, measurable, achievable, relevant, and time-bound (SMART) targets for all listed NFRs, including performance, security, and availability.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated '03_EDMS_Business_Case_BRD.docx' by Enterprise Architecture.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "BUS-F01",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "BUS-ACT-02",
+      "domain": "BUS",
+      "action_type": "amber_condition",
+      "title": "Enhance Stakeholder analysis with engagement details.",
+      "action": "Expand Section 7 of the '03_EDMS_Business_Case_BRD.docx' to detail stakeholder roles, influence, specific needs, and documented engagement activities. This should include how feedback has been incorporated into the EDMS design.",
+      "action_text": "Expand Section 7 of the '03_EDMS_Business_Case_BRD.docx' to detail stakeholder roles, influence, specific needs, and documented engagement activities. This should include how feedback has been incorporated into the EDMS design.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated '03_EDMS_Business_Case_BRD.docx' by Enterprise Architecture.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "BUS-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "BUS-ACT-03",
+      "domain": "BUS",
+      "action_type": "amber_condition",
+      "title": "Validate Business Use Cases against customer needs.",
+      "action": "Update Section 3 of the '03_EDMS_Business_Case_BRD.docx' to provide evidence or a plan for validating the listed business use cases against customer journeys, feedback, or market research. Document the alignment with customer value.",
+      "action_text": "Update Section 3 of the '03_EDMS_Business_Case_BRD.docx' to provide evidence or a plan for validating the listed business use cases against customer journeys, feedback, or market research. Document the alignment with customer value.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated '03_EDMS_Business_Case_BRD.docx' by Enterprise Architecture.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "BUS-F03",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "APP-ACT-01",
+      "domain": "APP",
+      "action_type": "amber_condition",
+      "title": "Clarify EDMS Tech Stack Compliance with KB-01",
+      "action": "Provide a detailed breakdown of the EDMS tech stack, explicitly confirming adherence to KB-01 requirements (Jakarta EE 9+/Spring Boot 3+, CDI/Spring IoC, JPA, JTA/@Transactional, Jakarta EE Security/Spring Security) for all core application services. If deviations are necessary, provide documented rationale.",
+      "action_text": "Provide a detailed breakdown of the EDMS tech stack, explicitly confirming adherence to KB-01 requirements (Jakarta EE 9+/Spring Boot 3+, CDI/Spring IoC, JPA, JTA/@Transactional, Jakarta EE Security/Spring Security) for all core application services. If deviations are necessary, provide documented rationale.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated documentation or a supplementary artifact detailing the tech stack and compliance.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "APP-F01",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "APP-ACT-02",
+      "domain": "APP",
+      "action_type": "amber_condition",
+      "title": "Define and Validate EDMS Scalability Targets",
+      "action": "Document specific, measurable scalability targets for the EDMS (e.g., Transactions Per Second, concurrent users, data volume growth) and outline the plan for performance testing and validation, including expected outcomes and any required autoscaling policies.",
+      "action_text": "Document specific, measurable scalability targets for the EDMS (e.g., Transactions Per Second, concurrent users, data volume growth) and outline the plan for performance testing and validation, including expected outcomes and any required autoscaling policies.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_60_DAYS",
+      "verification_method": "Review of updated HLD or a dedicated scalability/performance plan document.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "APP-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "APP-ACT-03",
+      "domain": "APP",
+      "action_type": "amber_condition",
+      "title": "Document EDMS Compliance Mapping and Audit Logging Strategy",
+      "action": "Detail the specific compliance frameworks relevant to EDMS and document how application controls will address them. Provide a clear strategy for comprehensive audit logging, specifying what events will be captured and how.",
+      "action_text": "Detail the specific compliance frameworks relevant to EDMS and document how application controls will address them. Provide a clear strategy for comprehensive audit logging, specifying what events will be captured and how.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_60_DAYS",
+      "verification_method": "Review of updated HLD or a dedicated compliance and audit logging strategy document.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "APP-F03",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "INT-ACT-01",
+      "domain": "INT",
+      "action_type": "amber_condition",
+      "title": "Complete Integration Catalogue Metadata",
+      "action": "Update the integration catalogue in '05_EDMS_Integration_Catalogue_API_Catalog.docx' to include detailed data flows, specific NFRs, and assigned owners for all 8 integration channels.",
+      "action_text": "Update the integration catalogue in '05_EDMS_Integration_Catalogue_API_Catalog.docx' to include detailed data flows, specific NFRs, and assigned owners for all 8 integration channels.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated '05_EDMS_Integration_Catalogue_API_Catalog.docx' or equivalent catalogue.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "INT-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "INT-ACT-02",
+      "domain": "INT",
+      "action_type": "amber_condition",
+      "title": "Document Integration Security Mechanisms and Protocol Standards",
+      "action": "Provide detailed documentation within '05_EDMS_Integration_Catalogue_API_Catalog.docx' or a linked artifact, specifying the authentication and authorization mechanisms (per KB-08) and the standard protocols/formats (per KB-05) for all integrations, especially MQ and SFTP.",
+      "action_text": "Provide detailed documentation within '05_EDMS_Integration_Catalogue_API_Catalog.docx' or a linked artifact, specifying the authentication and authorization mechanisms (per KB-08) and the standard protocols/formats (per KB-05) for all integrations, especially MQ and SFTP.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated documentation confirming adherence to KB-08 and KB-05 standards.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "INT-F03",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "INT-ACT-03",
+      "domain": "INT",
+      "action_type": "amber_condition",
+      "title": "Define and Document Integration Sunset Policy",
+      "action": "Develop and document a formal sunset policy for all 8 integration channels, including sunset dates, communication plans, and migration support strategies, as required by KB-06.",
+      "action_text": "Develop and document a formal sunset policy for all 8 integration channels, including sunset dates, communication plans, and migration support strategies, as required by KB-06.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_60_DAYS",
+      "verification_method": "Review of documented sunset policy for all integrations.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "INT-F04",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "DAT-ACT-01",
+      "domain": "DAT",
+      "action_type": "amber_condition",
+      "title": "Expedite DPO Sign-off for Pending Data Classifications",
+      "action": "Obtain formal Data Protection Officer (DPO) sign-off for the pending data classifications identified in Artefact 1, Section 3 (Retail Banking KYC, FCA Compliance filings, Risk Model docs). Address any outstanding issues raised during the review, such as UK S3 bucket provisioning.",
+      "action_text": "Obtain formal Data Protection Officer (DPO) sign-off for the pending data classifications identified in Artefact 1, Section 3 (Retail Banking KYC, FCA Compliance filings, Risk Model docs). Address any outstanding issues raised during the review, such as UK S3 bucket provisioning.",
+      "owner_role": "solution_architect",
+      "due_days": 90,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Updated Artefact 1, Section 3 showing DPO sign-off, or equivalent confirmation document.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "DAT-F01",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "DAT-ACT-02",
+      "domain": "DAT",
+      "action_type": "amber_condition",
+      "title": "Detail Data Lifecycle Policies",
+      "action": "Augment Artefact 1, Section 4.2 to include specific details on data retention periods, archival strategies, and secure disposal mechanisms for each data classification, as per D-STD-03 requirements.",
+      "action_text": "Augment Artefact 1, Section 4.2 to include specific details on data retention periods, archival strategies, and secure disposal mechanisms for each data classification, as per D-STD-03 requirements.",
+      "owner_role": "solution_architect",
+      "due_days": 90,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Updated Artefact 1, Section 4.2 with detailed lifecycle policies.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "DAT-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "INF-ACT-01",
+      "domain": "INF",
+      "action_type": "amber_condition",
+      "title": "Provide detailed RBAC/IAM design for infrastructure",
+      "action": "Develop and submit a comprehensive RBAC/IAM design document detailing roles, permissions, and access policies for all infrastructure components.",
+      "action_text": "Develop and submit a comprehensive RBAC/IAM design document detailing roles, permissions, and access policies for all infrastructure components.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Review of the submitted RBAC/IAM design document.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "INF-F01",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "INF-ACT-02",
+      "domain": "INF",
+      "action_type": "amber_condition",
+      "title": "Detail PKI and encryption strategy",
+      "action": "Document the comprehensive PKI strategy (including certificate lifecycle management) and the encryption approach for data at rest and in transit.",
+      "action_text": "Document the comprehensive PKI strategy (including certificate lifecycle management) and the encryption approach for data at rest and in transit.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Review of the documented PKI and encryption strategy.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "INF-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "INF-ACT-03",
+      "domain": "INF",
+      "action_type": "amber_condition",
+      "title": "Define and document regulatory compliance approach",
+      "action": "Provide a dedicated section or document detailing the regulatory compliance strategy, mapping infrastructure controls to specific regulatory requirements.",
+      "action_text": "Provide a dedicated section or document detailing the regulatory compliance strategy, mapping infrastructure controls to specific regulatory requirements.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Review of the documented regulatory compliance strategy.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "INF-F03",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "INF-ACT-04",
+      "domain": "INF",
+      "action_type": "amber_condition",
+      "title": "Elaborate on capacity planning details",
+      "action": "Provide further details on auto-scaling configurations, define headroom targets, and outline the process for regular capacity planning reviews and adjustments.",
+      "action_text": "Provide further details on auto-scaling configurations, define headroom targets, and outline the process for regular capacity planning reviews and adjustments.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated capacity planning documentation.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "INF-F04",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "INF-ACT-05",
+      "domain": "INF",
+      "action_type": "amber_condition",
+      "title": "Detail platform lifecycle management processes",
+      "action": "Detail the processes and automation for patching, upgrading EKS, Istio, and underlying OS images, including testing and rollback procedures.",
+      "action_text": "Detail the processes and automation for patching, upgrading EKS, Istio, and underlying OS images, including testing and rollback procedures.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated platform lifecycle management documentation.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "INF-F05",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "INF-ACT-06",
+      "domain": "INF",
+      "action_type": "amber_condition",
+      "title": "Provide Authn/Authz design for infrastructure",
+      "action": "Develop and submit a clear design for authentication (e.g., SSO, OIDC) and authorization mechanisms for both human users and service accounts interacting with the infrastructure.",
+      "action_text": "Develop and submit a clear design for authentication (e.g., SSO, OIDC) and authorization mechanisms for both human users and service accounts interacting with the infrastructure.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Review of the submitted Authn/Authz design document.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "INF-F06",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "DSO-ACT-01",
+      "domain": "DSO",
+      "action_type": "documentation",
+      "title": "Document the EDMS Branching Strategy",
+      "action": "Provide a detailed description of the branching strategy for the EDMS project, including branch lifecycle, merge policies, and how it supports CI/CD and shift-left security.",
+      "action_text": "Provide a detailed description of the branching strategy for the EDMS project, including branch lifecycle, merge policies, and how it supports CI/CD and shift-left security.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated '10_EDMS_Engineering_DevSecOps_Pipeline.docx' or a linked document detailing the branching strategy.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "DSO-F01",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "DSO-ACT-02",
+      "domain": "DSO",
+      "action_type": "documentation",
+      "title": "Specify Quality Gate Configurations",
+      "action": "Elaborate on the 'Quality Strategy' section in '10_EDMS_Engineering_DevSecOps_Pipeline.docx' by detailing the specific quality gates, their thresholds (e.g., SAST severity, test coverage percentage), and the conditions that cause them to block pipeline progression.",
+      "action_text": "Elaborate on the 'Quality Strategy' section in '10_EDMS_Engineering_DevSecOps_Pipeline.docx' by detailing the specific quality gates, their thresholds (e.g., SAST severity, test coverage percentage), and the conditions that cause them to block pipeline progression.",
+      "owner_role": "solution_architect",
+      "due_days": 30,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "WITHIN_30_DAYS",
+      "verification_method": "Review of updated '10_EDMS_Engineering_DevSecOps_Pipeline.docx' or a linked document detailing the specific quality gate configurations.",
+      "is_conditional_approval_gate": false,
+      "links_to_finding_id": "DSO-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    },
+    {
+      "id": "NFR-ACT-01",
+      "domain": "NFR",
+      "action_type": "blocker_resolution",
+      "title": "Remediate EDMS Service Account IAM Policies",
+      "action": "Update the IAM policies for the 3 identified EDMS service accounts to include the necessary LOB scope, adhering to the principle of least privilege. Provide evidence of the updated policies.",
+      "action_text": "Update the IAM policies for the 3 identified EDMS service accounts to include the necessary LOB scope, adhering to the principle of least privilege. Provide evidence of the updated policies.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Review of updated IAM policies and confirmation via a security scan or audit report.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "NFR-F01",
+      "links_to_blocker_id": "NFR-BLK-01",
+      "links_to_adr_id": null,
+      "priority": "CRITICAL"
+    },
+    {
+      "id": "NFR-ACT-02",
+      "domain": "NFR",
+      "action_type": "amber_condition",
+      "title": "Develop and Submit VAPT Plan for EDMS",
+      "action": "Create a detailed Vulnerability Assessment and Penetration Testing (VAPT) plan for the EDMS solution, including scope, methodology, timelines, and responsible parties. Submit the plan for ARB review and approval.",
+      "action_text": "Create a detailed Vulnerability Assessment and Penetration Testing (VAPT) plan for the EDMS solution, including scope, methodology, timelines, and responsible parties. Submit the plan for ARB review and approval.",
+      "owner_role": "solution_architect",
+      "due_days": 60,
+      "proposed_owner": "solution_architect",
+      "proposed_due_date": "PRE_GO_LIVE",
+      "verification_method": "Review and approval of the submitted VAPT plan by the Enterprise Architecture and Security teams.",
+      "is_conditional_approval_gate": true,
+      "links_to_finding_id": "NFR-F02",
+      "links_to_blocker_id": null,
+      "links_to_adr_id": null,
+      "priority": "HIGH"
+    }
+  ],
+  "adrs": [
+    {
+      "id": "ADR-INT-01",
+      "domain": "INT",
+      "adr_type": "new_decision",
+      "title": "Decision: Use of API Gateway for External and Cross-Domain Integrations",
+      "decision": "All external-facing APIs and cross-domain integrations for the Bank EDMS solution will be exposed and mediated through the enterprise API Gateway. Direct peer-to-peer communication is prohibited.",
+      "rationale": "This decision aligns with the enterprise standard INT-01 (API Gateway Mediation) which mandates routing integrations through the gateway for centralized control, security, monitoring, and governance.",
+      "context": "The Bank EDMS solution involves multiple integration points. A decision was needed on how these integrations would be exposed and managed to ensure compliance with enterprise architecture standards and maintain a secure, governable integration landscape.",
+      "owner": "solution_architect",
+      "proposed_owner": "solution_architect",
+      "target_date": null,
+      "proposed_target_date": "IMMEDIATE",
+      "waiver_expiry_date": null,
+      "status": "proposed",
+      "options_considered": [
+        {
+          "cons": [
+            "Potential for slight latency increase.",
+            "Dependency on API Gateway availability."
+          ],
+          "pros": [
+            "Centralized security, monitoring, and policy enforcement.",
+            "Compliance with enterprise standard INT-01.",
+            "Simplified integration management.",
+            "Reduced technical debt."
+          ],
+          "description": "Route all integrations through the enterprise API Gateway.",
+          "option_label": "A"
+        },
+        {
+          "cons": [
+            "Violates enterprise standard INT-01.",
+            "Creates security blind spots.",
+            "Inconsistent policy enforcement.",
+            "Increased operational complexity.",
+            "Requires explicit EA waiver for each exception."
+          ],
+          "pros": [
+            "Potentially lower latency for specific high-throughput internal integrations."
+          ],
+          "description": "Allow direct peer-to-peer integrations for specific use cases.",
+          "option_label": "B"
+        }
+      ],
+      "mitigations": [
+        "Performance tuning of the API Gateway.",
+        "Ensure adequate capacity planning for the API Gateway."
+      ],
+      "links_to_finding_ids": [
+        "INT-F03"
+      ],
+      "links_to_action_ids": [],
+      "kb_references": [
+        "KB-03 | INT-01"
+      ]
+    },
+    {
+      "id": "ADR-APP-01",
+      "domain": "APP",
+      "adr_type": "new_decision",
+      "title": "Decision: Microservices Architecture on AWS for EDMS",
+      "decision": "The EDMS will be implemented as a cloud-native, microservices-based platform hosted on AWS. Each service will be independently deployable and own its data, exposing defined interfaces.",
+      "rationale": "This decision aligns with modern cloud-native best practices (KB-02) and enables independent development, deployment, and scaling of EDMS components, fostering agility and resilience.",
+      "context": "The EDMS requires a flexible and scalable architecture to manage a high volume of documents and evolving business needs. A microservices approach was considered to break down the system into manageable, independently deployable units.",
+      "owner": "solution_architect",
+      "proposed_owner": "solution_architect",
+      "target_date": null,
+      "proposed_target_date": "IMMEDIATE",
+      "waiver_expiry_date": null,
+      "status": "proposed",
+      "options_considered": [
+        {
+          "cons": [
+            "Difficult to scale individual components.",
+            "Slower development cycles due to tight coupling.",
+            "Higher risk of widespread impact from a single failure."
+          ],
+          "pros": [
+            "Simpler initial development and deployment.",
+            "Easier to manage transactions across components."
+          ],
+          "description": "Monolithic Architecture on AWS",
+          "option_label": "A"
+        },
+        {
+          "cons": [
+            "Increased operational complexity (deployment, monitoring, management).",
+            "Challenges with distributed transactions and data consistency.",
+            "Requires mature DevOps practices."
+          ],
+          "pros": [
+            "Independent deployability and scalability of services.",
+            "Technology diversity possible per service.",
+            "Improved fault isolation.",
+            "Faster development cycles for individual services."
+          ],
+          "description": "Microservices Architecture on AWS (Chosen)",
+          "option_label": "B"
+        }
+      ],
+      "mitigations": [
+        "Implement robust inter-service communication patterns (e.g., asynchronous messaging, resilient REST APIs).",
+        "Establish comprehensive monitoring and tracing for distributed services.",
+        "Invest in automation for deployment and operations.",
+        "Carefully manage data consistency across services."
+      ],
+      "links_to_finding_ids": [],
+      "links_to_action_ids": [],
+      "kb_references": [
+        "KB-02"
+      ]
+    },
+    {
+      "id": "ADR-INF-01",
+      "domain": "INF",
+      "adr_type": "new_decision",
+      "title": "Decision: Use AWS EKS as the container orchestration platform",
+      "decision": "AWS Elastic Kubernetes Service (EKS) is selected as the managed Kubernetes platform for the EDMS solution.",
+      "rationale": "Leveraging a managed Kubernetes service reduces operational overhead for cluster management, security patching, and availability, aligning with the principle of 'Reuse, Buy, Build' (G-07) and standardizing on enterprise-approved cloud-native platforms.",
+      "context": "The EDMS solution requires a robust, scalable, and secure container orchestration platform. The choice between self-managed Kubernetes, another cloud provider's managed service, or AWS EKS was considered.",
+      "owner": "solution_architect",
+      "proposed_owner": "solution_architect",
+      "target_date": "2026-05-11",
+      "proposed_target_date": "IMMEDIATE",
+      "waiver_expiry_date": null,
+      "status": "proposed",
+      "options_considered": [
+        {
+          "cons": [
+            "Significant operational overhead for cluster management, patching, and availability.",
+            "Requires specialized expertise.",
+            "Slower to adopt new Kubernetes features."
+          ],
+          "pros": [
+            "Full control over the cluster configuration.",
+            "Potentially lower direct infrastructure cost if managed efficiently."
+          ],
+          "description": "Self-managed Kubernetes on EC2 instances",
+          "option_label": "A"
+        },
+        {
+          "cons": [
+            "Less control over the control plane.",
+            "Potential for vendor lock-in with AWS.",
+            "Can be more expensive than self-managed if not optimized."
+          ],
+          "pros": [
+            "Managed control plane reduces operational burden.",
+            "High availability and security features are built-in.",
+            "Seamless integration with other AWS services.",
+            "Faster adoption of new Kubernetes versions."
+          ],
+          "description": "AWS Elastic Kubernetes Service (EKS)",
+          "option_label": "B"
+        },
+        {
+          "cons": [
+            "Requires multi-cloud expertise if not already standardized.",
+            "Potential integration challenges with existing AWS-based services.",
+            "May not align with current enterprise cloud strategy."
+          ],
+          "pros": [
+            "Managed service benefits similar to EKS.",
+            "Leverages different cloud provider ecosystems."
+          ],
+          "description": "Azure Kubernetes Service (AKS) / Google Kubernetes Engine (GKE)",
+          "option_label": "C"
+        }
+      ],
+      "mitigations": [
+        "Utilize Infrastructure as Code (AWS CDK) to abstract and manage EKS resources, facilitating potential future migration.",
+        "Adhere to open standards where possible within the EKS environment (e.g., Kubernetes APIs, Istio)."
+      ],
+      "links_to_finding_ids": [],
+      "links_to_action_ids": [],
+      "kb_references": [
+        "KB-07 | None - Infrastructure as Code",
+        "KB-10 | G-03 Think Globally, Act Locally"
+      ]
+    },
+    {
+      "id": "ADR-DSO-01",
+      "domain": "DSO",
+      "adr_type": "new_decision",
+      "title": "Decision: Use GitHub Actions for CI/CD Orchestration and ArgoCD for Deployment",
+      "decision": "The CI/CD pipeline will be orchestrated using GitHub Actions for build, test, and security scanning stages, with ArgoCD used for GitOps-based deployment to various environments.",
+      "rationale": "This decision leverages existing enterprise tooling (GitHub Actions) and a proven GitOps deployment tool (ArgoCD), aligning with the principle of using established platforms where possible and enabling a fully automated, auditable deployment process.",
+      "context": "The EDMS solution requires a robust and automated CI/CD pipeline to support its DevSecOps principles, including shift-left security and GitOps. A decision was needed on the specific tools to orchestrate these processes.",
+      "owner": "solution_architect",
+      "proposed_owner": "solution_architect",
+      "target_date": null,
+      "proposed_target_date": "IMMEDIATE",
+      "waiver_expiry_date": null,
+      "status": "proposed",
+      "options_considered": [
+        {
+          "cons": [
+            "GitHub Actions deployment capabilities might be less mature or feature-rich than dedicated GitOps tools for complex environments.",
+            "May require more custom scripting for advanced deployment strategies."
+          ],
+          "pros": [
+            "Single toolchain simplifies integration.",
+            "Leverages existing GitHub Actions expertise."
+          ],
+          "description": "Use GitHub Actions for full CI/CD lifecycle including deployment orchestration.",
+          "option_label": "A"
+        },
+        {
+          "cons": [
+            "Introduces a new toolchain, increasing complexity and integration effort.",
+            "Requires expertise in both Jenkins and Spinnaker."
+          ],
+          "pros": [
+            "Jenkins is a mature and widely adopted CI/CD tool.",
+            "Spinnaker offers advanced deployment strategies."
+          ],
+          "description": "Use Jenkins for CI/CD orchestration and a separate tool (e.g., Spinnaker) for deployment.",
+          "option_label": "B"
+        },
+        {
+          "cons": [
+            "Requires integration effort between GitHub Actions and ArgoCD.",
+            "Learning curve for ArgoCD."
+          ],
+          "pros": [
+            "Leverages GitHub Actions for build/test/scan stages.",
+            "ArgoCD provides robust GitOps deployment capabilities.",
+            "Clear separation of concerns.",
+            "Aligns with GitOps best practices."
+          ],
+          "description": "Use GitHub Actions for CI/CD orchestration and ArgoCD for deployment (Chosen Option).",
+          "option_label": "C"
+        }
+      ],
+      "mitigations": [
+        "Provide comprehensive training on ArgoCD for the development and operations teams.",
+        "Implement thorough integration testing between GitHub Actions and ArgoCD to ensure seamless pipeline execution.",
+        "Maintain clear documentation for the CI/CD pipeline configuration and deployment process."
+      ],
+      "links_to_finding_ids": [],
+      "links_to_action_ids": [],
+      "kb_references": [
+        "KB-02 | CI/CD Pipeline"
+      ]
+    }
+  ]
+}
