@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
 from typing import List, Dict, Any, Optional
 from app.db.metadata_models import (
     SubmissionStep, Domain, DomainStep, ArtefactType, ArtefactTemplate,
@@ -66,18 +65,18 @@ class MetadataService:
             .filter(SubmissionStep.is_active == True)\
             .order_by(SubmissionStep.step_order)\
             .all()
-        
+
         domain_steps = self.db.query(DomainStep)\
             .join(Domain)\
             .filter(DomainStep.is_active == True)\
             .all()
-        
+
         mapping: Dict[int, str] = {}
         for ds in domain_steps:
             step = next((s for s in steps if s.id == ds.step_id), None)
             if step and ds.domain:
                 mapping[step.step_order] = ds.domain.slug
-        
+
         return mapping
 
     # ============================================================================
@@ -99,23 +98,23 @@ class MetadataService:
         domain = self.db.query(Domain)\
             .filter(Domain.slug == domain_slug)\
             .first()
-        
+
         if not domain:
             return []
-        
+
         templates = self.db.query(ArtefactTemplate)\
             .join(ArtefactType)\
             .filter(ArtefactTemplate.domain_id == domain.id)\
             .filter(ArtefactTemplate.is_active == True)\
             .order_by(ArtefactTemplate.sort_order)\
             .all()
-        
+
         result = []
         for template in templates:
             template_dict = ArtefactTemplateModel.model_validate(template).model_dump()
             template_dict['artefact_type'] = ArtefactTypeModel.model_validate(template.artefact_type) if template.artefact_type else None
             result.append(ArtefactTemplateModel(**template_dict))
-        
+
         return result
 
     # ============================================================================
@@ -126,35 +125,35 @@ class MetadataService:
         domain = self.db.query(Domain)\
             .filter(Domain.slug == domain_slug)\
             .first()
-        
+
         if not domain:
             return []
-        
+
         # Get subsections for the domain
         subsections = self.db.query(ChecklistSubsection)\
             .filter(ChecklistSubsection.domain_id == domain.id)\
             .filter(ChecklistSubsection.is_active == True)\
             .order_by(ChecklistSubsection.sort_order)\
             .all()
-        
+
         subsection_ids = [s.id for s in subsections]
-        
+
         # Get questions for these subsections
         questions = self.db.query(ChecklistQuestion)\
             .filter(ChecklistQuestion.subsection_id.in_(subsection_ids))\
             .filter(ChecklistQuestion.is_active == True)\
             .order_by(ChecklistQuestion.sort_order)\
             .all()
-        
+
         question_ids = [q.id for q in questions]
-        
+
         # Get all question options
         question_options = self.db.query(QuestionOption)\
             .filter(QuestionOption.question_id.in_(question_ids))\
             .filter(QuestionOption.is_active == True)\
             .order_by(QuestionOption.sort_order)\
             .all()
-        
+
         # Map options to questions
         options_by_question: Dict[str, List[QuestionOptionModel]] = {}
         for option in question_options:
@@ -163,33 +162,33 @@ class MetadataService:
             options_by_question[str(option.question_id)].append(
                 QuestionOptionModel.model_validate(option)
             )
-        
+
         # Sort options for each question
         for question_id in options_by_question:
             options_by_question[question_id].sort(key=lambda x: x.sort_order)
-        
+
         # Map questions to subsections
         questions_by_subsection: Dict[str, List[ChecklistQuestionModel]] = {}
         for question in questions:
             question_dict = ChecklistQuestionModel.model_validate(question).model_dump()
             question_dict['options'] = options_by_question.get(str(question.id), [])
             question_model = ChecklistQuestionModel(**question_dict)
-            
+
             if str(question.subsection_id) not in questions_by_subsection:
                 questions_by_subsection[str(question.subsection_id)] = []
             questions_by_subsection[str(question.subsection_id)].append(question_model)
-        
+
         # Sort questions for each subsection
         for subsection_id in questions_by_subsection:
             questions_by_subsection[subsection_id].sort(key=lambda x: x.sort_order)
-        
+
         # Build final result
         result = []
         for subsection in subsections:
             subsection_dict = ChecklistSubsectionModel.model_validate(subsection).model_dump()
             subsection_dict['questions'] = questions_by_subsection.get(str(subsection.id), [])
             result.append(ChecklistSubsectionModel(**subsection_dict))
-        
+
         return result
 
     # ============================================================================
@@ -236,23 +235,23 @@ class MetadataService:
         domain = self.db.query(Domain)\
             .filter(Domain.slug == domain_slug)\
             .first()
-        
+
         if not domain:
             return []
-        
+
         principle_domains = self.db.query(PrincipleDomain)\
             .join(EAPrinciple)\
             .filter(PrincipleDomain.domain_id == domain.id)\
             .filter(PrincipleDomain.relevance_score > 0)\
             .order_by(PrincipleDomain.relevance_score.desc())\
             .all()
-        
+
         result = []
         for pd in principle_domains:
             principle_dict = EAPrincipleModel.model_validate(pd.principle).model_dump()
             principle_dict['relevance_score'] = pd.relevance_score
             result.append(EAPrincipleWithRelevance(**principle_dict))
-        
+
         return result
 
     # ============================================================================
@@ -298,7 +297,7 @@ class MetadataService:
         architecture_dispositions = self.get_architecture_dispositions()
         ea_principles = self.get_ea_principles()
         question_options = self.get_all_question_options()
-        
+
         return {
             "domains": domains,
             "artefactTypes": artefact_types,

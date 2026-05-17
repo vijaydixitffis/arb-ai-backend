@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header
-from typing import List, Optional
-from app.models.arb_submission import ARBSubmission, DomainSection, ChecklistItem
+from typing import Optional
+from app.models.arb_submission import ARBSubmission
 from datetime import datetime
 from app.core.security import decode_access_token
 
@@ -55,7 +55,7 @@ async def update_submission(submission_id: str, submission: ARBSubmission, curre
         raise HTTPException(status_code=401, detail="Authentication required")
     if submission_id not in submissions_db:
         raise HTTPException(status_code=404, detail="Submission not found")
-    
+
     submission.id = submission_id
     submission.overall_progress = calculate_progress(submission)
     submissions_db[submission_id] = submission
@@ -68,7 +68,7 @@ async def submit_submission(submission_id: str, current_user: str = Depends(get_
         raise HTTPException(status_code=401, detail="Authentication required")
     if submission_id not in submissions_db:
         raise HTTPException(status_code=404, detail="Submission not found")
-    
+
     submission = submissions_db[submission_id]
     submission.status = "submitted"
     submission.submitted_date = datetime.now()
@@ -81,11 +81,11 @@ async def upload_artefact(submission_id: str, file: UploadFile = File(...), curr
         raise HTTPException(status_code=401, detail="Authentication required")
     if submission_id not in submissions_db:
         raise HTTPException(status_code=404, detail="Submission not found")
-    
+
     # Generate system label based on file type
     file_type = file.content_type or "unknown"
     system_label = generate_system_label(file.filename, file_type)
-    
+
     # In production, save file to storage and return path
     return {
         "artefact_id": f"art-{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -102,7 +102,7 @@ async def upload_integration_catalogue(submission_id: str, file: UploadFile = Fi
         raise HTTPException(status_code=401, detail="Authentication required")
     if submission_id not in submissions_db:
         raise HTTPException(status_code=404, detail="Submission not found")
-    
+
     # In production, parse Excel/CSV and return structured data
     return {
         "message": "Integration catalogue uploaded successfully",
@@ -119,13 +119,13 @@ def calculate_progress(submission: ARBSubmission) -> float:
         submission.infrastructure_architecture,
         submission.devsecops
     ]
-    
+
     completed_sections = sum(1 for section in sections if section is not None)
     total_sections = len(sections)
-    
+
     if total_sections == 0:
         return 0.0
-    
+
     return (completed_sections / total_sections) * 100
 
 def generate_system_label(filename: str, file_type: str) -> str:
@@ -138,9 +138,9 @@ def generate_system_label(filename: str, file_type: str) -> str:
         "image/jpeg": "JPEG Image",
         "image/svg+xml": "SVG Diagram"
     }
-    
+
     base_label = label_map.get(file_type, "Unknown File Type")
-    
+
     # Add descriptive prefix based on filename
     filename_lower = filename.lower()
     if "architecture" in filename_lower:

@@ -16,10 +16,10 @@ class AuthService:
         Returns User object if authentication succeeds, None otherwise
         """
         user = self.db.query(User).filter(User.email == email).first()
-        
+
         if not user:
             return None
-        
+
         # For development, handle both plain text and hashed passwords
         try:
             if not verify_password(password, user.user_password):
@@ -28,7 +28,7 @@ class AuthService:
             # If password verification fails (e.g., plain text), try direct comparison
             if password != user.user_password:
                 return None
-        
+
         return user
 
     def get_user_by_email(self, email: str) -> Optional[User]:
@@ -60,7 +60,7 @@ class AuthService:
         user = self.get_user_by_id(user_id)
         if not user:
             return None
-        
+
         user.user_password = get_password_hash(new_password)
         self.db.commit()
         self.db.refresh(user)
@@ -71,7 +71,7 @@ class AuthService:
         user = self.get_user_by_id(user_id)
         if not user:
             return None
-        
+
         user.role = new_role
         self.db.commit()
         self.db.refresh(user)

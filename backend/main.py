@@ -17,12 +17,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()
         logger.info(f"[REQUEST] {request.method} {request.url.path} - Started")
-        
+
         response = await call_next(request)
-        
+
         duration = time.time() - start_time
         logger.info(f"[REQUEST] {request.method} {request.url.path} - Completed in {duration:.3f}s - Status {response.status_code}")
-        
+
         return response
 
 app = FastAPI(

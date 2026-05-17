@@ -142,8 +142,8 @@ class LLMService:
                 return json.loads(repair_json(cleaned))
             except Exception:
                 raise
-    
-    
+
+
     async def generate_embedding(self, text: str) -> list:
         if self.provider == "openai":
             return await self._openai_embedding(text)
@@ -279,7 +279,7 @@ class LLMService:
         else:
             # Fallback to response.text for backward compatibility
             content = response.text
-            
+
         if not content:
             raise ValueError("Gemini response has no content")
 

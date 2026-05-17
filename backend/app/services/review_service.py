@@ -5,7 +5,6 @@ from app.agents.enhanced_orchestrator import EnhancedARBOrchestrator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import uuid
-import json
 
 
 class ReviewService:
@@ -44,7 +43,7 @@ class ReviewService:
         report_json = review_data.get('report_json', {})
         if not report_json:
             report_json = {}
-        
+
         # If form_data exists at root level, store it in report_json.form_data
         if 'form_data' in review_data:
             report_json['form_data'] = review_data['form_data']
@@ -52,14 +51,14 @@ class ReviewService:
             # Check for individual project fields that might be at root level
             project_fields = ['problem_statement', 'stakeholders', 'business_drivers', 'target_business_outcomes', 'ptx_gate', 'architecture_disposition']
             form_data = report_json.get('form_data', {})
-            
+
             for field in project_fields:
                 if field in review_data and field not in form_data:
                     form_data[field] = review_data[field]
-            
+
             if form_data:
                 report_json['form_data'] = form_data
-        
+
         review = Review(
             id=uuid.uuid4(),
             sa_user_id=uuid.UUID(review_data.get('sa_user_id')) if review_data.get('sa_user_id') else None,
@@ -115,12 +114,12 @@ class ReviewService:
             review = self.db.query(Review).filter(Review.id == uuid.UUID(review_id)).first()
             if not review:
                 return None
-            
+
             # Check if review has artefacts
             artefacts = await self.artefact_service.get_artefacts_by_review(str(review.id))
             if not artefacts:
                 raise ValueError("Cannot submit review without artefacts")
-            
+
             review.status = 'queued'
             review.submitted_at = datetime.utcnow()
             self.db.commit()
@@ -134,13 +133,13 @@ class ReviewService:
         try:
             # Prepare checklist data
             checklist_data = await self.orchestrator.prepare_checklist_data(review_id)
-            
+
             # Run the review
             result = await self.orchestrator.run_review(
                 review_id=review_id,
                 checklist_data=checklist_data
             )
-            
+
             # Update review with results
             review = self.db.query(Review).filter(Review.id == uuid.UUID(review_id)).first()
             if review:
@@ -149,7 +148,7 @@ class ReviewService:
                 review.report_json = result
                 review.tokens_used = result.get('total_tokens_used')
                 review.reviewed_at = datetime.utcnow()
-                
+
                 # Debug logging for domain_payloads
                 import logging
                 logger = logging.getLogger(__name__)
@@ -158,14 +157,14 @@ class ReviewService:
                     logger.info(f"[REVIEW_SERVICE] domain_payloads count: {len(result['domain_payloads'])}")
                 else:
                     logger.warning(f"[REVIEW_SERVICE] domain_payloads missing from result. Keys: {list(result.keys())}")
-                
+
                 self.db.commit()
-                
+
                 # Verify the save
                 self.db.refresh(review)
                 saved_keys = list(review.report_json.keys()) if review.report_json else []
                 logger.info(f"[REVIEW_SERVICE] Saved report_json keys: {saved_keys}")
-            
+
             return result
         except Exception as e:
             # Update review with error status
@@ -182,7 +181,7 @@ class ReviewService:
             review = self.db.query(Review).filter(Review.id == uuid.UUID(review_id)).first()
             if not review:
                 return None
-            
+
             review.status = 'approved'
             review.decision = 'approve'
             review.ea_override_notes = override_rationale
@@ -200,7 +199,7 @@ class ReviewService:
             review = self.db.query(Review).filter(Review.id == uuid.UUID(review_id)).first()
             if not review:
                 return None
-            
+
             review.status = 'overridden'
             review.decision = decision
             review.ea_override_notes = rationale
@@ -222,16 +221,16 @@ class ReviewService:
             'solution', 'business', 'application', 'integration',
             'data', 'infrastructure', 'devsecops', 'nfr'
         ]
-        
+
         scope_tags = set()
-        
+
         # Extract from domain_data structure (new format)
         domain_data = review_data.get("domain_data", {})
         for domain_slug, domain_info in domain_data.items():
             # Validate domain name
             if domain_slug not in VALID_DOMAINS:
                 continue
-                
+
             # Check if domain has meaningful data
             if domain_info:
                 has_checklist = domain_info.get("checklist") and len(domain_info["checklist"]) > 0
@@ -240,15 +239,15 @@ class ReviewService:
                     answer and answer in ['compliant', 'non_compliant', 'partial', 'na']
                     for answer in domain_info["checklist"].values()
                 )
-                
+
                 if has_checklist or has_evidence or has_valid_answers:
                     scope_tags.add(domain_slug)
-        
+
         # Extract from legacy checklist/evidence fields (backward compatibility)
         for key, value in review_data.items():
             if key.endswith('_checklist') or key.endswith('_evidence'):
                 domain_slug = key.replace('_checklist', '').replace('_evidence', '')
-                
+
                 if domain_slug in VALID_DOMAINS and value and len(value) > 0:
                     if key.endswith('_checklist'):
                         # Validate that we have actual compliance answers
@@ -261,7 +260,7 @@ class ReviewService:
                     else:
                         # Evidence fields count if they have content
                         scope_tags.add(domain_slug)
-        
+
         # Special handling for NFR criteria
         nfr_criteria = review_data.get("nfr_criteria", [])
         if nfr_criteria and len(nfr_criteria) > 0:
@@ -271,16 +270,16 @@ class ReviewService:
             )
             if has_valid_criteria:
                 scope_tags.add("nfr")
-        
+
         # Extract from legacy scope_tags field if present
         if "scope_tags" in review_data:
             for tag in review_data["scope_tags"]:
                 if tag in VALID_DOMAINS:
                     scope_tags.add(tag)
-        
+
         # Ensure at least one tag exists (default to 'solution')
         if len(scope_tags) == 0:
             scope_tags.add("solution")
-        
+
         # Return sorted list for consistency
         return sorted(list(scope_tags))

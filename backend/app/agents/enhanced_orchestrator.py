@@ -20,7 +20,7 @@ from typing import Any, Dict, List
 
 from sqlalchemy.orm import Session
 
-from app.agents.enhanced_domain_agents import EnhancedDomainValidationAgent, _rag_score_to_severity
+from app.agents.enhanced_domain_agents import EnhancedDomainValidationAgent
 from app.services.artefact_service import ArtefactService
 from app.db.review_models import Review
 from app.db.metadata_models import ChecklistQuestion
@@ -342,17 +342,17 @@ class EnhancedARBOrchestrator:
         """Process NFR criteria from form data and analyze compliance"""
         if not review.report_json:
             return {"criteria": [], "summary": {"total_criteria": 0, "compliant_count": 0, "average_score": 0}}
-        
+
         form_data = review.report_json.get("form_data", {})
         nfr_criteria = form_data.get("nfr_criteria", [])
-        
+
         if not nfr_criteria:
             return {"criteria": [], "summary": {"total_criteria": 0, "compliant_count": 0, "average_score": 0}}
-        
+
         processed_criteria = []
         compliant_count = 0
         total_score = 0
-        
+
         for criterion in nfr_criteria:
             # Calculate compliance based on score
             score = criterion.get("score", 0)
@@ -360,7 +360,7 @@ class EnhancedARBOrchestrator:
             if is_compliant:
                 compliant_count += 1
             total_score += score
-            
+
             # Determine compliance level
             if score >= 9:
                 compliance_level = "fully_compliant"
@@ -370,7 +370,7 @@ class EnhancedARBOrchestrator:
                 compliance_level = "partially_compliant"
             else:
                 compliance_level = "non_compliant"
-            
+
             processed_criteria.append({
                 "id": criterion.get("id"),
                 "category": criterion.get("category"),
@@ -382,12 +382,12 @@ class EnhancedARBOrchestrator:
                 "is_compliant": is_compliant,
                 "evidence": criterion.get("evidence"),
             })
-        
+
         # Calculate summary statistics
         total_criteria = len(processed_criteria)
         average_score = round(total_score / total_criteria, 1) if total_criteria > 0 else 0
         compliance_percentage = round((compliant_count / total_criteria) * 100, 1) if total_criteria > 0 else 0
-        
+
         # Group by category for analysis
         category_analysis = {}
         for criterion in processed_criteria:
@@ -399,22 +399,22 @@ class EnhancedARBOrchestrator:
                     "average_score": 0,
                     "scores": []
                 }
-            
+
             category_analysis[category]["total"] += 1
             category_analysis[category]["scores"].append(criterion["score"])
             if criterion["is_compliant"]:
                 category_analysis[category]["compliant"] += 1
-        
+
         # Calculate category averages
         for category, analysis in category_analysis.items():
             if analysis["scores"]:
                 analysis["average_score"] = round(sum(analysis["scores"]) / len(analysis["scores"]), 1)
                 analysis["compliance_percentage"] = round((analysis["compliant"] / analysis["total"]) * 100, 1)
             del analysis["scores"]  # Remove raw scores to clean up output
-        
+
         # Generate NFR domain score (affects overall decision)
         nfr_domain_score = min(5, max(1, round(average_score / 2)))  # Convert 0-10 to 1-5 scale
-        
+
         return {
             "criteria": processed_criteria,
             "summary": {

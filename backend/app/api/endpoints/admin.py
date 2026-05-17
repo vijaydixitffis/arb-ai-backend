@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Header, UploadFile, File, Form, Query
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from typing import List, Optional, Any
-import json
+from typing import Optional
 
 from app.core.database import get_db
 from app.core.security import decode_access_token

@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel
 from enum import Enum
 from app.core.security import get_password_hash
 
@@ -14,7 +13,7 @@ class User(BaseModel):
     email: str
     name: str
     role: UserRole
-    
+
 class UserInDB(User):
     hashed_password: str
 

@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.models.user import UserLogin, Token
+from app.models.user import Token
 from app.core.security import create_access_token
 from app.services.auth_service import AuthService
 from app.core.database import get_db
@@ -43,7 +43,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 async def get_demo_users(db: Session = Depends(get_db)):
     """Return information about default users in the database"""
     auth_service = AuthService(db)
-    
+
     users = []
     for email in ['sa_user@mail.com', 'ea_user@mail.com', 'admin@mail.com']:
         user = auth_service.get_user_by_email(email)
@@ -53,5 +53,5 @@ async def get_demo_users(db: Session = Depends(get_db)):
                 "password": "password123",  # Default password from migration
                 "role": user.role
             })
-    
+
     return {"users": users}

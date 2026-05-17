@@ -56,13 +56,13 @@ class ARBSubmission(BaseModel):
     status: str = "draft"
     created_date: Optional[datetime] = None
     submitted_date: Optional[datetime] = None
-    
+
     # Step 1: Solution Context
     problem_statement: str
     stakeholders: List[str]
     business_drivers: List[str]
     growth_plans: Optional[str] = None
-    
+
     # Steps 2-7: Domain Sections
     application_architecture: Optional[DomainSection] = None
     integration_architecture: Optional[DomainSection] = None
@@ -70,10 +70,10 @@ class ARBSubmission(BaseModel):
     security_architecture: Optional[DomainSection] = None
     infrastructure_architecture: Optional[DomainSection] = None
     devsecops: Optional[DomainSection] = None
-    
+
     # Step 8: NFR Assessment
     nfr_criteria: List[NFRCriteria]
-    
+
     # Overall progress
     overall_progress: float = 0.0
 

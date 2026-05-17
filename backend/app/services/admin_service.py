@@ -1,11 +1,10 @@
 import hashlib
 import os
-import shutil
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from sqlalchemy import func, text
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
@@ -35,7 +34,6 @@ from app.models.admin import (
     EAPrincipleUpdate,
     KbDocumentUpdate,
     PromptTemplateCreate,
-    PromptTemplateUpdate,
     PtxGateCreate,
     PtxGateUpdate,
     SystemConfigUpdate,

@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 import uuid
 from app.core.database import get_db
 from app.services.artefact_service import ArtefactService
 from app.core.security import decode_access_token
-from app.models.artefact import ArtefactResponse, ArtefactChunkResponse, KnowledgeBaseResponse
+from app.models.artefact import ArtefactResponse, KnowledgeBaseResponse
 
 router = APIRouter()
 
@@ -37,10 +37,10 @@ async def upload_artefact(
     """Upload an artefact for a review"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     # Read file content
     file_content = await file.read()
-    
+
     # Process artefact
     service = ArtefactService(db)
     artefact = await service.process_artefact(
@@ -51,7 +51,7 @@ async def upload_artefact(
         filename=file.filename,
         file_content=file_content
     )
-    
+
     return ArtefactResponse.model_validate(artefact)
 
 @router.get("/artefacts/review/{review_id}")
@@ -63,10 +63,10 @@ async def get_review_artefacts(
     """Get all artefacts for a review"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     service = ArtefactService(db)
     artefacts = await service.get_artefacts_by_review(uuid.UUID(review_id))
-    
+
     return artefacts
 
 @router.get("/artefacts/chunks/{review_id}")
@@ -80,14 +80,14 @@ async def get_review_chunks(
     """Get relevant chunks for a review"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     service = ArtefactService(db)
     chunks = await service.get_relevant_chunks(
         review_id=uuid.UUID(review_id),
         domain_slug=domain_slug,
         limit=limit
     )
-    
+
     return chunks
 
 @router.delete("/artefacts/{artefact_id}")
@@ -99,13 +99,13 @@ async def delete_artefact(
     """Delete an artefact"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     service = ArtefactService(db)
     success = await service.delete_artefact(uuid.UUID(artefact_id))
-    
+
     if not success:
         raise HTTPException(status_code=404, detail="Artefact not found")
-    
+
     return {"message": "Artefact deleted successfully"}
 
 # ============================================================================
@@ -122,14 +122,14 @@ async def search_knowledge_base(
     """Search knowledge base for relevant content"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     service = ArtefactService(db)
     results = await service.search_knowledge_base(
         query=query,
         category=category,
         limit=limit
     )
-    
+
     return results
 
 @router.post("/knowledge-base")
@@ -144,20 +144,20 @@ async def create_knowledge_base_entry(
     """Create a knowledge base entry"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     from app.db.artefact_models import KnowledgeBase
-    
+
     kb_entry = KnowledgeBase(
         title=title,
         content=content,
         category=category,
         principle_id=principle_id
     )
-    
+
     db.add(kb_entry)
     db.commit()
     db.refresh(kb_entry)
-    
+
     return KnowledgeBaseResponse.model_validate(kb_entry)
 
 @router.get("/knowledge-base")
@@ -169,14 +169,14 @@ async def get_knowledge_base(
     """Get knowledge base entries"""
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     from app.db.artefact_models import KnowledgeBase
-    
+
     query = db.query(KnowledgeBase).filter(KnowledgeBase.is_active == True)
-    
+
     if category:
         query = query.filter(KnowledgeBase.category == category)
-    
+
     entries = query.all()
-    
+
     return [KnowledgeBaseResponse.model_validate(entry) for entry in entries]
