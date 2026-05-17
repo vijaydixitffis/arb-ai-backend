@@ -101,7 +101,8 @@ async def load_mock_result(review_id: str, db: Session) -> dict:
     # Recalculate aggregate score from filtered domain scores (min of selected)
     filtered_scores = [ds["score"] for ds in filtered_ds]
     aggregate_score = min(filtered_scores) if filtered_scores else env.get("aggregate_rag_score")
-    score_to_label = lambda s: "green" if s >= 4 else "amber" if s == 3 else "red"
+    def score_to_label(s: int) -> str:
+        return "green" if s >= 4 else "amber" if s == 3 else "red"
     aggregate_label = score_to_label(aggregate_score) if isinstance(aggregate_score, int) else env.get("aggregate_rag_label")
 
     domain_scores:    dict = {ds["domain"]: int(ds["score"]) for ds in filtered_ds}

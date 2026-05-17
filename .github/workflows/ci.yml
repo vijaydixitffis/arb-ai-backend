@@ -24,7 +24,7 @@ jobs:
         run: pip install -r backend/requirements.txt ruff
 
       - name: Ruff lint
-        run: ruff check backend/app --select E,F,W --ignore E501
+        run: ruff check backend/app
 
   test:
     name: Tests

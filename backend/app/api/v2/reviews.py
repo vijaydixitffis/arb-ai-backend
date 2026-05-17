@@ -1,14 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
-from fastapi.responses import StreamingResponse
 from typing import List, Optional, Dict, Any
 import logging
-import asyncio
 from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.services.review_service import ReviewService
 from app.utils.schema_validation import validate_review_data_structure, validate_submission_completeness, get_validation_summary
 from sqlalchemy.orm import Session
-import io
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +29,15 @@ async def get_reviews(user_id: str = None, current_user: tuple = Depends(get_cur
     user_id_token, user_role = current_user
     if not user_id_token:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     service = ReviewService(db)
     reviews = service.get_all_reviews()
-    
+
     # SA, EA, ARB Admin can read all reviews
     # Filter by user if user_id is provided (for getUserReviews)
     if user_id:
         reviews = [r for r in reviews if str(r.sa_user_id) == user_id]
-    
+
     # Convert to dict format for JSON response
     return [
         {
@@ -78,10 +75,9 @@ async def get_review(review_id: str, current_user: tuple = Depends(get_current_u
         raise HTTPException(status_code=404, detail="Review not found")
 
     from app.db.review_models import DomainScore, Finding, ADR, Action
-    from sqlalchemy import text
 
     from app.db.review_models import (
-        DomainScore, Finding, ADR, Action, Blocker, Recommendation, NFRScorecard, EAReviewRecord
+        Blocker, Recommendation, NFRScorecard, EAReviewRecord
     )
 
     domain_scores  = db.query(DomainScore).filter(DomainScore.review_id == review.id).all()
@@ -185,8 +181,10 @@ async def get_review(review_id: str, current_user: tuple = Depends(get_current_u
 
     # -- Build per-domain summary dict from DB --------------------------------
     def _rag_label(score: int) -> str:
-        if score >= 4: return "GREEN"
-        if score == 3: return "AMBER"
+        if score >= 4:
+            return "GREEN"
+        if score == 3:
+            return "AMBER"
         return "RED"
 
     domain_slugs = list({ds.domain for ds in domain_scores})
@@ -376,29 +374,29 @@ async def create_review(review_data: dict, current_user: tuple = Depends(get_cur
     user_id_token, _ = current_user
     if not user_id_token:
         raise HTTPException(status_code=401, detail="Authentication required")
-    
+
     # Enhanced validation - use draft mode for initial creation
     is_draft = review_data.get('status') in ('drafting', 'draft')
-    
+
     # Check form_data in report_json (where frontend sends it) or at root level
     form_data = None
     if 'report_json' in review_data and isinstance(review_data['report_json'], dict):
         form_data = review_data['report_json'].get('form_data')
     elif 'form_data' in review_data:
         form_data = review_data['form_data']
-    
+
     # If form_data exists, ensure it includes all project fields that might be sent at top level
     if form_data:
         project_fields = ['problem_statement', 'stakeholders', 'business_drivers', 'target_business_outcomes', 'ptx_gate', 'architecture_disposition']
         for field in project_fields:
             if field not in form_data and field in review_data:
                 form_data[field] = review_data[field]
-    
+
     if form_data:
         form_validation = validate_submission_completeness(form_data, is_draft=is_draft)
         if not form_validation.is_valid:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail={
                     "error": "Form data validation failed",
                     "validation_errors": form_validation.errors,
@@ -406,16 +404,16 @@ async def create_review(review_data: dict, current_user: tuple = Depends(get_cur
                     "summary": get_validation_summary(form_validation)
                 }
             )
-        
+
         # Log warnings for monitoring
         if form_validation.warnings:
             logger.warning(f"Review creation form validation warnings: {form_validation.warnings}")
-    
+
     # Basic review structure validation
     validation = validate_review_data_structure(review_data)
     if not validation.is_valid:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail={
                 "error": "Review structure validation failed",
                 "validation_errors": validation.errors,
@@ -423,14 +421,14 @@ async def create_review(review_data: dict, current_user: tuple = Depends(get_cur
                 "summary": get_validation_summary(validation)
             }
         )
-    
+
     # Log warnings for monitoring
     if validation.warnings:
         logger.warning(f"Review creation warnings: {validation.warnings}")
-    
+
     service = ReviewService(db)
     review = service.create_review(review_data)
-    
+
     return {
         "id": str(review.id),
         "created_at": review.created_at.isoformat() if review.created_at else None,
@@ -483,7 +481,7 @@ async def update_review(review_id: str, review_data: dict, current_user: tuple =
         from app.services.artefact_service import ArtefactService
         artefact_service = ArtefactService(db)
         artefacts_list = await artefact_service.get_artefacts_by_review(review_id)
-        
+
         # Group artefacts by domain slug for validation
         artefacts_by_domain: Dict[str, List[Any]] = {}
         for artefact in artefacts_list:
@@ -500,7 +498,7 @@ async def update_review(review_id: str, review_data: dict, current_user: tuple =
                 form_data['solution_name'] = review_data['solution_name']
             elif form_data.get('project_name'):
                 form_data['solution_name'] = form_data['project_name']
-        
+
         # Copy project information fields that might be sent at top level
         project_fields = ['problem_statement', 'stakeholders', 'business_drivers', 'target_business_outcomes', 'ptx_gate', 'architecture_disposition']
         for field in project_fields:
@@ -596,7 +594,6 @@ async def open_review_for_ea(
     db: Session = Depends(get_db),
 ):
     """Gate 2 open: transition review_ready → ea_reviewing when EA opens the dossier."""
-    from datetime import datetime, timezone
     from app.db.review_models import Review
 
     user_id_token, user_role = current_user

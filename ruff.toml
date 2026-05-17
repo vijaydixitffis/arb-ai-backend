@@ -1,0 +1,6 @@
+[lint]
+select = ["E", "F", "W"]
+ignore = [
+    "E501",   # line too long — handled by formatter
+    "E712",   # == True / == False comparisons — intentional SQLAlchemy ORM filter syntax
+]
