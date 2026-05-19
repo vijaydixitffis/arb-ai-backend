@@ -30,6 +30,24 @@ from app.core.db_config import db_config
 logger = logging.getLogger(__name__)
 
 
+def _persist_partial_domain(db: Session, review: Review, domain_slug: str, payload: Dict[str, Any]) -> None:
+    """Write one domain result into report_json.domain_partial_results immediately."""
+    try:
+        existing = dict(review.report_json or {})
+        partials = dict(existing.get("domain_partial_results", {}))
+        partials[domain_slug] = payload
+        existing["domain_partial_results"] = partials
+        review.report_json = existing
+        db.commit()
+        logger.info(f"[ORCHESTRATOR] Persisted partial result for domain '{domain_slug}'")
+    except Exception as exc:
+        logger.warning(f"[ORCHESTRATOR] Could not persist partial for '{domain_slug}': {exc}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+
 class EnhancedARBOrchestrator:
     """Orchestrates per-domain validation and aggregates results."""
 
@@ -44,10 +62,16 @@ class EnhancedARBOrchestrator:
         self,
         review_id: str,
         checklist_data: Dict[str, Any],
+        retry_domains: List[str] | None = None,
     ) -> Dict[str, Any]:
-        """Run complete ARB review and return the merged report dict."""
+        """Run complete ARB review and return the merged report dict.
+
+        retry_domains: if provided, only these domains are (re-)run; all others
+        use their cached result from domain_partial_results.
+        """
         t0 = time.time()
-        logger.info(f"[ORCHESTRATOR] Starting review={review_id}")
+        logger.info(f"[ORCHESTRATOR] Starting review={review_id}"
+                    + (f" (partial retry: {retry_domains})" if retry_domains else ""))
 
         review = self.db.query(Review).filter(Review.id == review_id).first()
         if not review:
@@ -56,9 +80,24 @@ class EnhancedARBOrchestrator:
         domains = self._get_domains_from_scope(review.scope_tags or [])
         logger.info(f"[ORCHESTRATOR] Domains to process: {domains}")
 
+        # Load any domain results persisted by a previous partial run
+        existing_partials: Dict[str, Any] = (review.report_json or {}).get("domain_partial_results", {})
+
         # ── Sequential domain calls ───────────────────────────────────────────
         domain_payloads: List[Dict[str, Any]] = []
+        failed_domains:  List[str]            = []
+
         for domain_slug in domains:
+            # Resume: skip domains that completed successfully in a prior run,
+            # unless they are explicitly listed in retry_domains.
+            is_forced_retry = retry_domains is not None and domain_slug in retry_domains
+            if (not is_forced_retry
+                    and domain_slug in existing_partials
+                    and not existing_partials[domain_slug].get("error")):
+                logger.info(f"[ORCHESTRATOR] Skipping '{domain_slug}' — already completed in prior run")
+                domain_payloads.append({"domain_slug": domain_slug, "payload": existing_partials[domain_slug]})
+                continue
+
             domain_checklist = dict(checklist_data.get("domain_data", {}).get(domain_slug, {}))
             domain_checklist["domain_metadata"] = {
                 **self._get_domain_metadata(domain_slug),
@@ -80,28 +119,44 @@ class EnhancedARBOrchestrator:
                     domain_checklist=domain_checklist,
                 )
                 domain_payloads.append({"domain_slug": domain_slug, "payload": payload})
+                _persist_partial_domain(self.db, review, domain_slug, payload)
             except Exception as exc:
-                logger.error(f"[ORCHESTRATOR] Domain {domain_slug} failed after all retries: {exc}")
-                domain_payloads.append({
-                    "domain_slug": domain_slug,
-                    "payload": {
-                        "domain": domain_slug,
-                        "session_id": review_id,
-                        "summary": {
-                            "rag_score": 2, "rag_label": "RED",
-                            "overall_readiness": "DEFER",
-                            "rationale": f"Domain agent error — manual review required: {exc}",
-                            "evidence_quality": "ABSENT",
-                            "total_findings": 0, "blocker_count": 0, "mandatory_gaps": 0,
-                        },
-                        "blockers": [], "recommendations": [],
-                        "findings": [], "actions": [], "adrs": [],
-                        "error": str(exc),
+                logger.error(f"[ORCHESTRATOR] Domain '{domain_slug}' failed after all retries: {exc}")
+                failed_domains.append(domain_slug)
+                stub_payload = {
+                    "domain": domain_slug,
+                    "error": str(exc),  # Signals to the resume logic that this domain must be retried
+                    "summary": {
+                        "rag_score": 2, "rag_label": "red",
+                        "overall_readiness": "DEFER",
+                        "executive_summary": f"Domain review failed: {exc}",
+                        "compliant_areas": [], "gap_areas": [f"Domain agent failed — re-run required"],
+                        "blocker_count": 0, "action_count": 0, "adr_count": 0,
+                        "evidence_quality": "ABSENT",
                     },
-                })
+                    "findings": [{
+                        "id": f"{domain_slug.upper()[:3]}-F01",
+                        "check_category": "AGENT_FAILURE",
+                        "rag_score": 2, "rag_label": "red",
+                        "title": f"{domain_slug} domain review failed — re-run required",
+                        "finding": f"Domain review failed: {exc}. Re-trigger the review to obtain a valid result.",
+                        "recommendation": "Re-trigger the review. If the error persists, check LLM quota and logs.",
+                        "is_blocker": False,
+                    }],
+                    "blockers": [], "recommendations": [], "actions": [], "adrs": [],
+                    "tokens_used": 0,
+                }
+                domain_payloads.append({"domain_slug": domain_slug, "payload": stub_payload})
+                _persist_partial_domain(self.db, review, domain_slug, stub_payload)
 
             if domain_slug != domains[-1]:
                 await asyncio.sleep(db_config(self.db, "agent.domain_delay_seconds", settings.INTER_DOMAIN_DELAY_S))
+
+        if failed_domains:
+            logger.warning(
+                f"[ORCHESTRATOR] {len(failed_domains)} domain(s) failed: {failed_domains} "
+                f"— continuing to synthesis with stub findings (partial review)"
+            )
 
         # ── Aggregate ─────────────────────────────────────────────────────────
         domain_scores: Dict[str, int] = {}
@@ -142,8 +197,10 @@ class EnhancedARBOrchestrator:
                 )
 
             all_recommendations.extend(payload.get("recommendations", []))
-            all_actions.extend(payload.get("actions", []))
-            all_adrs.extend(payload.get("adrs", []))
+            for a in payload.get("actions", []):
+                all_actions.append({**a, "domain_slug": slug})
+            for adr in payload.get("adrs", []):
+                all_adrs.append({**adr, "domain_slug": slug})
             total_tokens += payload.get("tokens_used", 0)
 
         scores = list(domain_scores.values())
@@ -265,6 +322,8 @@ class EnhancedARBOrchestrator:
             "processed_at":         datetime.now(timezone.utc).isoformat(),
         }
 
+        synthesis_fell_back = synthesis["executive_rationale"].startswith("Synthesis step unavailable")
+
         return {
             **existing_report_json,
             "ai_review":              ai_review,
@@ -285,6 +344,12 @@ class EnhancedARBOrchestrator:
             "processing_time_seconds": total_duration_s,
             "domains_evaluated":      domains,
             "domain_payloads":        [e["payload"] for e in domain_payloads],
+            # Partial-run metadata — surfaced to the API layer for status and audit log
+            "failed_domains":         failed_domains,
+            "synthesis_ran":          not synthesis_fell_back,
+            "synthesis_score_corrections": len(synthesis["score_corrections"]),
+            "synthesis_removed_adrs": len(synthesis["removed_adr_ids"]),
+            "synthesis_dedup_findings": len(synthesis.get("duplicate_finding_ids", [])),
         }
 
     # ── Checklist preparation ─────────────────────────────────────────────────
@@ -680,7 +745,7 @@ aggregate_score: {aggregate_score}
                 continue
             orig      = domain_scores[dom]
             corrected = max(1, min(5, int(c.get("corrected_score", orig))))
-            is_sec_dr = dom in ("security", "infrastructure")
+            is_sec_dr = dom in ("infrastructure", "nfr")
             if is_sec_dr and corrected > orig:
                 logger.warning(f"[SYNTHESIS] Blocked raising {dom} score {orig}→{corrected}")
                 continue

@@ -16,33 +16,25 @@ import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // ── Domain metadata ───────────────────────────────────────────────────────────
 
 const DOMAIN_LABEL: Record<string, string> = {
-  solution:     'Solution',
-  business:     'Business Domain',
-  application:  'Application Domain',
-  software:     'Software Architecture',
-  integration:  'Integration Domain',
-  api:          'API Design & Standards',
-  security:     'Security Domain',
-  data:         'Data Domain',
-  infra:        'Infrastructure & Platform',
-  devsecops:    'DevSecOps Domain',
-  engg_quality: 'Engineering Excellence',
-  nfr:          'Non-Functional Requirements',
+  solution:       'Solution',
+  business:       'Business Domain',
+  application:    'Application Domain',
+  integration:    'Integration Domain',
+  data:           'Data Domain',
+  infrastructure: 'Infrastructure & Platform',
+  devsecops:      'DevSecOps Domain',
+  nfr:            'Non-Functional Requirements',
 }
 
 const DOMAIN_CODE: Record<string, string> = {
-  solution:     'SOL',
-  business:     'BUS',
-  application:  'APP',
-  software:     'SFT',
-  integration:  'INT',
-  api:          'API',
-  security:     'SEC',
-  data:         'DAT',
-  infra:        'INF',
-  devsecops:    'DSO',
-  engg_quality: 'ENG',
-  nfr:          'NFR',
+  solution:       'SOL',
+  business:       'BUS',
+  application:    'APP',
+  integration:    'INT',
+  data:           'DAT',
+  infrastructure: 'INF',
+  devsecops:      'DSO',
+  nfr:            'NFR',
 }
 
 // ── Interfaces ────────────────────────────────────────────────────────────────
@@ -96,6 +88,20 @@ export interface ReviewResult {
   scoreCorrections: any[]
 }
 
+interface DomainPartialResult {
+  domain:          string
+  score:           number
+  domainSummary:   any
+  findings:        Finding[]
+  blockers:        any[]
+  adrs:            DomainAdr[]
+  actions:         DomainAction[]
+  recommendations: any[]
+  nfrScorecard:    any[]
+  kbRefs:          string[]
+  tokensUsed:      number
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function ragScoreToSeverity(ragScore: number): 'BLOCKER' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO' {
@@ -117,11 +123,147 @@ function scoreToRagLabel(score: number): string {
 // Delay between sequential domain LLM calls — stays within 15 RPM free-tier limit.
 const INTER_DOMAIN_DELAY_S = 0.5
 
+// Write one domain's result into report_json.domain_partial_results immediately
+// so a timeout on a later domain doesn't lose work already done.
+async function _persistDomainPartial(
+  supabase: any, reviewId: string, domain: string, partial: Record<string, any>
+): Promise<void> {
+  try {
+    const { data: row } = await supabase
+      .from('reviews').select('report_json').eq('id', reviewId).single()
+    const existing = row?.report_json ?? {}
+    const partials  = { ...(existing.domain_partial_results ?? {}), [domain]: partial }
+    const { error } = await supabase
+      .from('reviews').update({ report_json: { ...existing, domain_partial_results: partials } })
+      .eq('id', reviewId)
+    if (error) console.warn(`[ORCHESTRATOR] partial persist write failed for '${domain}': ${error.message}`)
+    else console.log(`[ORCHESTRATOR] Persisted partial result for domain '${domain}'`)
+  } catch (err) {
+    console.warn(`[ORCHESTRATOR] Could not persist partial for '${domain}': ${err}`)
+  }
+}
+
 // One retry on transient LLM errors (503, timeout, etc.), 10 s delay.
 // Retry (attempt 2) reduces KB + artefact content by 25% to stay under token limits.
 const LLM_CONTENT_SCALE_ON_SECOND_RETRY = 0.75
 
+// Parallel execution settings — tuned for Gemini paid tier (~20 RPM cheapest model).
+// 4 concurrent × 1.5 s stagger → 8 domains in 2 batches ≈ 40 s + synthesis ≈ 55 s total.
+const DOMAIN_CONCURRENCY = 4
+const DOMAIN_STAGGER_MS  = 1500
+
 export class OrchestratorAgent {
+  // Process one domain: resume from prior partial if available, otherwise call LLM.
+  // Never rejects — LLM errors produce a stub so Promise.allSettled callers are safe.
+  private async _processSingleDomain(
+    review: any, reportJson: any, artifactText: string, supabase: any,
+    agentDomain: string, existingPartials: Record<string, any>
+  ): Promise<DomainPartialResult> {
+    // Resume: restore a successfully completed domain from the prior run
+    const prior = existingPartials[agentDomain]
+    if (prior && !prior.error) {
+      console.log(`[ORCHESTRATOR] Resuming '${agentDomain}' from prior partial result`)
+      return {
+        domain:          agentDomain,
+        score:           prior.score,
+        domainSummary:   prior.domainSummary,
+        findings:        prior.findings        ?? [],
+        blockers:        prior.blockers        ?? [],
+        adrs:            prior.adrs            ?? [],
+        actions:         prior.actions         ?? [],
+        recommendations: prior.recommendations ?? [],
+        nfrScorecard:    prior.nfrScorecard    ?? [],
+        kbRefs:          prior.kbRefs          ?? [],
+        tokensUsed:      prior.tokensUsed      ?? 0,
+      }
+    }
+
+    console.log(`\n=== Processing domain: ${agentDomain} ===`)
+
+    try {
+      const domainResult = await this._processDomainWithRetry(
+        review, reportJson, artifactText, supabase, agentDomain
+      )
+      await _persistDomainPartial(supabase, review.id, agentDomain, {
+        score:           domainResult.score,
+        domainSummary:   domainResult.domainSummary,
+        findings:        domainResult.findings,
+        blockers:        domainResult.blockers,
+        adrs:            domainResult.adrs,
+        actions:         domainResult.actions,
+        recommendations: domainResult.recommendations,
+        nfrScorecard:    domainResult.nfrScorecard,
+        kbRefs:          domainResult.kbRefs,
+        tokensUsed:      domainResult.tokensUsed,
+      })
+      return {
+        domain:          agentDomain,
+        score:           domainResult.score,
+        domainSummary:   domainResult.domainSummary,
+        findings:        domainResult.findings,
+        blockers:        domainResult.blockers,
+        adrs:            domainResult.adrs,
+        actions:         domainResult.actions,
+        recommendations: domainResult.recommendations,
+        nfrScorecard:    domainResult.nfrScorecard,
+        kbRefs:          domainResult.kbRefs,
+        tokensUsed:      domainResult.tokensUsed,
+      }
+    } catch (domainErr: any) {
+      console.error(`[ORCHESTRATOR] Domain ${agentDomain} failed after all retries: ${domainErr.message}`)
+      const domainCode = DOMAIN_CODE[agentDomain] ?? agentDomain.toUpperCase()
+      const stubFinding: Finding = {
+        domain:              agentDomain,
+        principle_id:        `${domainCode}-F01`,
+        finding_id:          `${domainCode}-F01`,
+        severity:            'HIGH',
+        finding:             `Domain review failed — ${domainErr.message}. Re-trigger the review to obtain a valid result.`,
+        recommendation:      'Re-trigger the review. If the error persists, check LLM quota and edge function logs.',
+        check_category:      'AGENT_FAILURE',
+        title:               `${agentDomain} domain review failed — re-run required`,
+        rag_score:           2,
+        evidence_source:     null,
+        standard_violated:   null,
+        impact:              'This domain has not been assessed.',
+        is_blocker:          false,
+        links_to_action_ids: [],
+        links_to_adr_id:     null,
+        waiver_eligible:     false,
+        kb_reference:        [],
+        artifact_ref:        null,
+        kb_ref:              null,
+      }
+      const stubSummary = {
+        score: 2, rag_label: 'red', overall_readiness: 'DEFER',
+        executive_summary: `Domain review failed: ${domainErr.message}`,
+        compliant_areas: [], gap_areas: [`${domainCode}-F01: Domain agent failed — re-run required`],
+        blocker_count: 0, action_count: 0, adr_count: 0,
+        evidence_quality: 'ABSENT', kb_references: [], model_used: review.llm_model || 'gemini-2.5-flash-lite',
+        total_findings: 1, critical_count: 1,
+        findings: [stubFinding], actions: [], adrs: [], recommendations: [],
+      }
+      await _persistDomainPartial(supabase, review.id, agentDomain, {
+        error: domainErr.message,
+        score: 2, domainSummary: stubSummary,
+        findings: [stubFinding], blockers: [], adrs: [], actions: [],
+        recommendations: [], nfrScorecard: [], kbRefs: [], tokensUsed: 0,
+      })
+      return {
+        domain:          agentDomain,
+        score:           2,
+        domainSummary:   stubSummary,
+        findings:        [stubFinding],
+        blockers:        [],
+        adrs:            [],
+        actions:         [],
+        recommendations: [],
+        nfrScorecard:    [],
+        kbRefs:          [],
+        tokensUsed:      0,
+      }
+    }
+  }
+
   async validateReview(input: ReviewInput): Promise<ReviewResult> {
     const { review, reportJson, artifactText, supabase, scopeTags } = input
 
@@ -134,8 +276,8 @@ export class OrchestratorAgent {
       application:    ['application'],
       integration:    ['integration'],
       data:           ['data'],
-      infrastructure: ['infra', 'security'],
-      devsecops:      ['devsecops', 'engg_quality'],
+      infrastructure: ['infrastructure'],
+      devsecops:      ['devsecops'],
       nfr:            ['nfr'],
     }
 
@@ -143,6 +285,11 @@ export class OrchestratorAgent {
       scopeTags.flatMap(tag => agentDomainMap[tag] ?? [tag])
     )]
     console.log(`Processing domains: ${uniqueDomains.join(', ')}`)
+
+    // Load any domain results persisted by a previous partial run so we can skip them.
+    const existingPartials: Record<string, any> = reportJson?.domain_partial_results ?? {}
+    const resumeCount = Object.keys(existingPartials).filter(d => !existingPartials[d]?.error).length
+    console.log(`[ORCHESTRATOR] Existing partials: ${Object.keys(existingPartials).join(', ') || 'none'} (${resumeCount} resumable)`)
 
     const domainResults:      DomainResult[] = []
     const allFindings:        Finding[]      = []
@@ -155,31 +302,38 @@ export class OrchestratorAgent {
     const kbSourcesCited:     string[]       = []
     let totalTokensUsed = 0
 
-    for (const agentDomain of uniqueDomains) {
-      console.log(`\n=== Processing domain: ${agentDomain} ===`)
+    // Run domains in parallel batches of DOMAIN_CONCURRENCY.
+    // Each domain in a batch is staggered by DOMAIN_STAGGER_MS to spread API calls.
+    for (let batchStart = 0; batchStart < uniqueDomains.length; batchStart += DOMAIN_CONCURRENCY) {
+      const batch = uniqueDomains.slice(batchStart, batchStart + DOMAIN_CONCURRENCY)
+      const batchNum = Math.floor(batchStart / DOMAIN_CONCURRENCY) + 1
+      const totalBatches = Math.ceil(uniqueDomains.length / DOMAIN_CONCURRENCY)
+      console.log(`[ORCHESTRATOR] Batch ${batchNum}/${totalBatches}: ${batch.join(', ')}`)
 
-      const domainResult = await this._processDomainWithRetry(
-        review, reportJson, artifactText, supabase, agentDomain
+      const batchResults = await Promise.allSettled(
+        batch.map((domain, i) =>
+          new Promise<void>(res => setTimeout(res, i * DOMAIN_STAGGER_MS))
+            .then(() => this._processSingleDomain(review, reportJson, artifactText, supabase, domain, existingPartials))
+        )
       )
 
-      totalTokensUsed += domainResult.tokensUsed
-      allFindings.push(...domainResult.findings)
-      allBlockers.push(...domainResult.blockers)
-      allAdrs.push(...domainResult.adrs)
-      allActions.push(...domainResult.actions)
-      allRecommendations.push(...domainResult.recommendations)
-      if (domainResult.nfrScorecard.length > 0) allNfrScorecard.push(...domainResult.nfrScorecard)
-      if (domainResult.kbRefs.length > 0) kbSourcesCited.push(...domainResult.kbRefs)
-
-      domainSummaries[agentDomain] = domainResult.domainSummary
-      domainResults.push({
-        domain:   agentDomain,
-        score:    domainResult.score,
-        findings: domainResult.findings,
-      })
-
-      if (agentDomain !== uniqueDomains[uniqueDomains.length - 1]) {
-        await new Promise(r => setTimeout(r, INTER_DOMAIN_DELAY_S * 1000))
+      for (const outcome of batchResults) {
+        if (outcome.status === 'rejected') {
+          // _processSingleDomain never rejects — defensive guard only
+          console.error('[ORCHESTRATOR] Unexpected batch rejection:', outcome.reason)
+          continue
+        }
+        const r = outcome.value
+        totalTokensUsed += r.tokensUsed
+        allFindings.push(...r.findings)
+        allBlockers.push(...r.blockers)
+        allAdrs.push(...r.adrs)
+        allActions.push(...r.actions)
+        allRecommendations.push(...r.recommendations)
+        if (r.nfrScorecard.length > 0) allNfrScorecard.push(...r.nfrScorecard)
+        if (r.kbRefs.length > 0) kbSourcesCited.push(...r.kbRefs)
+        domainSummaries[r.domain] = r.domainSummary
+        domainResults.push({ domain: r.domain, score: r.score, findings: r.findings })
       }
     }
 
@@ -196,6 +350,7 @@ export class OrchestratorAgent {
     // ── Tier 2: Synthesis LLM call ────────────────────────────────────────────
     // Runs after all domain agents. Rationalises cross-domain scores, gates ADRs,
     // writes executive rationale. Honoured only within Tier-1 floors.
+    console.log(`\n=== Tier 2: Synthesis (${Object.keys(domainScores).length} domains, ${allBlockers.length} blockers, ${allAdrs.length} ADRs, ${allFindings.length} findings) ===`)
     const synthesisModel = review.llm_model || Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash-lite'
     const synthesisResult = await runSynthesis({
       reviewId:       review.id,
@@ -599,7 +754,7 @@ SCORING RULES:
           const problem   = fd.problem_statement ?? '(not provided)'
           const drivers   = (fd.business_drivers ?? []).join('; ') || '(not provided)'
           const stk       = (fd.stakeholders ?? []).join(', ') || '(not provided)'
-          const outcomes  = fd.target_business_outcomes ?? fd.growth_plans ?? '(not provided)'
+          const outcomes  = fd.target_business_outcomes ?? fd.target_outcomes ?? fd.growth_plans ?? '(not provided)'
           return `== PROJECT INFORMATION (PRIMARY ASSESSMENT CONTEXT) ==
 Solution Name:            ${solutionName}
 Problem Statement:        ${problem}

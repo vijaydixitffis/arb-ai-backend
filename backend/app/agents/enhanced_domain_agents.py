@@ -35,7 +35,6 @@ DOMAIN_CODE: Dict[str, str] = {
     "application":    "APP",
     "integration":    "INT",
     "data":           "DAT",
-    "security":       "SEC",
     "infrastructure": "INF",
     "devsecops":      "DSO",
     "nfr":            "NFR",
@@ -47,7 +46,6 @@ DOMAIN_LABEL: Dict[str, str] = {
     "application":    "Application Domain",
     "integration":    "Integration Domain",
     "data":           "Data Domain",
-    "security":       "Security Domain",
     "infrastructure": "Infrastructure & Platform",
     "devsecops":      "DevSecOps Domain",
     "nfr":            "Non-Functional Requirements",
@@ -61,7 +59,6 @@ DOMAIN_TO_QR_TABS: Dict[str, List[str]] = {
     "application":    ["application"],
     "integration":    ["integration"],
     "data":           ["data"],
-    "security":       ["infrastructure", "nfr"],  # infra-sec-* + nfr-sec-*
     "infrastructure": ["infrastructure"],
     "devsecops":      ["devsecops"],
     "nfr":            ["nfr"],

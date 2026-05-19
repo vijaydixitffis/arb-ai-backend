@@ -220,7 +220,7 @@ export function buildSolutionContextBlock(reportJson: any): string {
     `Problem Statement:        ${fd.problem_statement ?? '(not provided)'}`,
     `Stakeholders:             ${(fd.stakeholders ?? []).join(', ') || '(not provided)'}`,
     `Business Drivers:         ${(fd.business_drivers ?? []).join('; ') || '(not provided)'}`,
-    `Target Business Outcomes: ${fd.target_business_outcomes ?? fd.growth_plans ?? '(not provided)'}`,
+    `Target Business Outcomes: ${fd.target_business_outcomes ?? fd.target_outcomes ?? fd.growth_plans ?? '(not provided)'}`,
   ].join('\n')
 }
 

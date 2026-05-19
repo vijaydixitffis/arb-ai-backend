@@ -113,11 +113,30 @@ def _mark_agent_failed(db: Session, review_id: str, error_msg: str) -> None:
             pass
 
 
+def _mark_review_pending(db: Session, review_id: str, failed_domains: list) -> None:
+    """Persist review_pending status with the list of failed domain slugs."""
+    from app.db.review_models import Review
+    try:
+        review = db.query(Review).filter(Review.id == review_id).first()
+        if review:
+            review.status = "review_pending"
+            existing = review.report_json or {}
+            review.report_json = {**existing, "failed_domains": failed_domains}
+            db.commit()
+            logger.info(f"[AGENT] Marked review {review_id} as review_pending — failed: {failed_domains}")
+    except Exception as e:
+        logger.error(f"[AGENT] Could not persist review_pending for {review_id}: {e}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @router.post("/review")
 async def trigger_review(
-    request: Dict[str, str],
+    request: Dict[str, Any],
     current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -128,6 +147,7 @@ async def trigger_review(
     review_id = request.get("reviewId")
     if not review_id:
         raise HTTPException(status_code=400, detail="reviewId is required")
+    retry_domains: list[str] | None = request.get("retryDomains") or None
 
     # Gate: block re-trigger on truly final governance decisions.
     # agent_failed and review_ready (with domain errors) are explicitly allowed.
@@ -142,7 +162,7 @@ async def trigger_review(
             detail=f"Cannot re-trigger a review with status '{review_row.status}'",
         )
 
-    is_retrigger = review_row.status in {"agent_failed", "review_ready"}
+    is_retrigger = review_row.status in {"agent_failed", "review_ready", "review_pending"}
     use_mock = db_config(db, "llm.use_mock", settings.USE_MOCK_LLM)
     logger.info(
         f"[AGENT] trigger_review review_id={review_id} user={current_user} "
@@ -159,23 +179,25 @@ async def trigger_review(
             result = await orchestrator.run_review(
                 review_id=review_id,
                 checklist_data=await orchestrator.prepare_checklist_data(review_id),
+                retry_domains=retry_domains,
             )
     except Exception as exc:
         logger.exception(f"[AGENT] Orchestration failed for {review_id}")
         _mark_agent_failed(db, review_id, str(exc))
         raise HTTPException(status_code=500, detail=f"Review orchestration failed: {exc}")
 
-    # Detect partial domain failures — domains that exhausted retries get a
-    # synthetic error payload.  Flag them so the frontend can offer re-trigger.
-    failed_domains = [
-        p.get("domain", p.get("domain_slug", "unknown"))
-        for p in result.get("domain_payloads", [])
-        if p.get("error")
-    ]
-    if failed_domains:
-        result["has_domain_errors"] = True
-        result["failed_domains"]    = failed_domains
-        logger.warning(f"[AGENT] review {review_id} has domain errors: {failed_domains}")
+    # Partial run — one or more domains timed out / 503'd.  Partial results are
+    # already persisted in report_json.domain_partial_results by the orchestrator.
+    if result.get("status") == "review_pending":
+        failed_domains = result["failed_domains"]
+        _mark_review_pending(db, review_id, failed_domains)
+        return {
+            "success":       False,
+            "reviewId":      review_id,
+            "status":        "review_pending",
+            "failedDomains": failed_domains,
+            "message":       f"{len(failed_domains)} domain(s) failed: {', '.join(failed_domains)}. Re-trigger to complete.",
+        }
 
     try:
         _persist_results(db, review_id, result)
@@ -193,8 +215,8 @@ async def trigger_review(
         "decision":          result.get("decision"),
         "report":            result,
         "tokensUsed":        result.get("total_tokens_used", 0),
-        "hasDomainErrors":   bool(failed_domains),
-        "failedDomains":     failed_domains,
+        "hasDomainErrors":   False,
+        "failedDomains":     [],
     }
 
 

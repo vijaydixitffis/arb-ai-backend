@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { OrchestratorAgent } from "./agents/orchestrator.ts"
-import { extractTextFromArtifact } from "./utils/text-extraction.ts"
+import { extractTextFromArtifact, mimeTypeToExt } from "./utils/text-extraction.ts"
 
 // Map legacy/uppercase severity values to the normalised lowercase spec values
 function normaliseSeverity(s: string | undefined): string {
@@ -51,10 +51,14 @@ serve(async (req) => {
   try {
     const body = await req.json()
     reviewId = body.reviewId
+    // Optional: restrict processing to a subset of domains (e.g. retry only the ones that failed).
+    const retryDomains: string[] | undefined =
+      Array.isArray(body.retryDomains) && body.retryDomains.length > 0 ? body.retryDomains : undefined
+    const isPartialRetry = retryDomains !== undefined
 
     if (!reviewId) throw new Error('reviewId is required')
 
-    console.log(`Starting review processing for reviewId: ${reviewId}`)
+    console.log(`Starting review processing for reviewId: ${reviewId}${isPartialRetry ? ` (partial retry: ${retryDomains!.join(', ')})` : ''}`)
 
     // ── STEP 1: Fetch review and validate ─────────────────────────────────────
     const { data: review, error: reviewError } = await supabase
@@ -67,9 +71,10 @@ serve(async (req) => {
       throw new Error(`Review not found: ${reviewError?.message}`)
     }
 
-    // Accept intake-complete states that are ready for AI processing
-    if (!['queued', 'pending', 'submitted', 'returned'].includes(review.status)) {
-      throw new Error(`Review already processed or not ready: ${review.status}`)
+    // Accept intake-complete states plus stuck/failed states for re-triggers.
+    // review_ready is allowed for partial domain retries (e.g. one domain failed with 503).
+    if (!['queued', 'pending', 'submitted', 'returned', 'analysing', 'agent_failed', 'review_pending', 'review_ready'].includes(review.status)) {
+      throw new Error(`Review not ready for processing: ${review.status}`)
     }
 
     await adminSupabase
@@ -85,11 +90,12 @@ serve(async (req) => {
       application:    ['application'],
       integration:    ['integration'],
       data:           ['data'],
-      infrastructure: ['infra', 'security'],
-      devsecops:      ['devsecops', 'engg_quality'],
+      infrastructure: ['infrastructure'],
+      devsecops:      ['devsecops'],
       nfr:            ['nfr'],
     }
-    const scopeDomains: string[] = review.scope_tags ?? []
+    // For a partial retry only track the domains being re-run.
+    const scopeDomains: string[] = isPartialRetry ? retryDomains! : (review.scope_tags ?? [])
     const expandedDomains = [...new Set(
       scopeDomains.flatMap((tag: string) => agentDomainMap[tag] ?? [tag])
     )]
@@ -106,9 +112,10 @@ serve(async (req) => {
       if (drErr) console.warn(`domain_reviews pre-insert (non-fatal): ${drErr.message}`)
     }
 
-    console.log(`Review ${reviewId} status updated to in_review`)
+    console.log(`Review ${reviewId} status updated to analysing`)
 
-    // ── STEP 2: Extract artifact text (optional — new schema stores in artefact_uploads) ──
+    // ── STEP 2: Extract artifact text ────────────────────────────────────────────
+    // 2a. Legacy single-file path (artifact_path column)
     let artifactText = ''
     if (review.artifact_path) {
       console.log(`Downloading artifact from: ${review.artifact_path}`)
@@ -128,16 +135,94 @@ serve(async (req) => {
       }
     }
 
+    // 2b. Multi-artefact schema — query artefacts table (authoritative source of storage_path),
+    //     download each file from Storage, extract text, then inject parsed_text into
+    //     report_json.artefact_uploads so buildArtefactBlock can serve it to domain agents.
+    const { data: artefactRows, error: artefactFetchErr } = await adminSupabase
+      .from('artefacts')
+      .select('id, storage_path, file_type, filename, domain_slug')
+      .eq('review_id', reviewId)
+      .eq('is_active', true)
+
+    if (artefactFetchErr) {
+      console.warn(`[STEP 2b] artefacts fetch failed (non-fatal): ${artefactFetchErr.message}`)
+    } else if (artefactRows && artefactRows.length > 0) {
+      console.log(`[STEP 2b] Extracting text from ${artefactRows.length} artefact(s) via Storage...`)
+
+      // Work on a mutable copy of artefact_uploads so buildArtefactBlock finds completed entries
+      const updatedUploads: any[] = (review.report_json?.artefact_uploads ?? []).map((u: any) => ({ ...u }))
+      let anyUpdated = false
+
+      for (const row of artefactRows) {
+        // Skip artefacts already extracted in a previous run — avoids redundant
+        // storage downloads on partial retries and failed re-triggers.
+        const existingEntry = updatedUploads.find((u: any) => u.artefact_id === row.id)
+        if (existingEntry?.parse_status === 'complete') {
+          console.log(`[STEP 2b] Skipping ${row.filename} — already extracted`)
+          continue
+        }
+
+        const { data: fileData, error: dlErr } = await adminSupabase
+          .storage
+          .from('review-artifacts')
+          .download(row.storage_path)
+
+        if (dlErr || !fileData) {
+          console.warn(`[STEP 2b] Download failed for ${row.filename}: ${dlErr?.message}`)
+          continue
+        }
+
+        try {
+          const ext = mimeTypeToExt(row.file_type) ?? row.filename.split('.').pop()?.toLowerCase() ?? 'unknown'
+          const parsedText = await extractTextFromArtifact(fileData, ext)
+          console.log(`[STEP 2b] Extracted ${parsedText.length} chars from ${row.filename}`)
+
+          // Update existing artefact_uploads entry if present, otherwise add one
+          const idx = updatedUploads.findIndex((u: any) => u.artefact_id === row.id)
+          if (idx >= 0) {
+            updatedUploads[idx].parsed_text  = parsedText
+            updatedUploads[idx].parse_status = 'complete'
+          } else {
+            updatedUploads.push({
+              artefact_id:  row.id,
+              file_name:    row.filename,
+              domain_tags:  row.domain_slug ? [row.domain_slug] : [],
+              storage_path: row.storage_path,
+              file_type:    row.file_type,
+              parsed_text:  parsedText,
+              parse_status: 'complete',
+              is_active:    true,
+            })
+          }
+          anyUpdated = true
+        } catch (extractErr: any) {
+          console.error(`[STEP 2b] Extraction failed for ${row.filename}:`, extractErr.message)
+        }
+      }
+
+      if (anyUpdated) {
+        const { error: persistErr } = await adminSupabase
+          .from('reviews')
+          .update({ report_json: { ...review.report_json, artefact_uploads: updatedUploads } })
+          .eq('id', reviewId)
+        if (persistErr) console.error('[STEP 2b] Failed to persist parse results (non-fatal):', persistErr.message)
+        review.report_json = { ...review.report_json, artefact_uploads: updatedUploads }
+      }
+    }
+
     // ── STEP 3: Run orchestrator ───────────────────────────────────────────────
     const orchestrator = new OrchestratorAgent()
     const startTime    = Date.now()
+
+    // For a partial retry only run the specified domains; otherwise run all scope_tags.
+    const scopeTagsToRun = isPartialRetry ? retryDomains! : (review.scope_tags ?? [])
 
     const reviewResult = await orchestrator.validateReview({
       review,
       reportJson:   review.report_json,
       artifactText,
       supabase:     adminSupabase,  // admin client for KB/checklist reads — no RLS interference
-      scopeTags:    review.scope_tags ?? [],
+      scopeTags:    scopeTagsToRun,
     })
 
     const processingTime = Date.now() - startTime
@@ -147,12 +232,65 @@ serve(async (req) => {
 
     const now = new Date().toISOString()
 
+    // Detect domains whose agent produced a stub AGENT_FAILURE finding (503 / timeout).
+    const newlyFailedDomains: string[] = reviewResult.findings
+      .filter((f: any) => f.check_category === 'AGENT_FAILURE')
+      .map((f: any) => f.domain as string)
+
+    // For partial retry: compute the true aggregate across ALL domains (not just the retried subset).
+    let aggregateScoreToSave    = reviewResult.aggregateScore
+    let aggregateRagLabelToSave = reviewResult.aggregateRagLabel
+    if (isPartialRetry) {
+      const { data: existingScores } = await adminSupabase
+        .from('domain_scores')
+        .select('domain, score')
+        .eq('review_id', reviewId)
+        .not('domain', 'in', `(${retryDomains!.map(d => `"${d}"`).join(',')})`)
+      const allScores = [
+        ...(existingScores || []).map((s: any) => Number(s.score)),
+        ...Object.values(reviewResult.domainScores).map(Number),
+      ]
+      if (allScores.length > 0) {
+        aggregateScoreToSave = Math.min(...allScores)
+        aggregateRagLabelToSave = aggregateScoreToSave >= 4 ? 'green' : aggregateScoreToSave === 3 ? 'amber' : 'red'
+      }
+    }
+
     // 4a. Update reviews table
     // Always carry form_data forward so SA can edit the submission after LLM processing.
-    const reportToSave = {
+    // For partial retry: merge new domain_summaries into the existing report_json so other
+    // domains' data is preserved.
+    let reportToSave: any = {
       ...reviewResult.fullReport,
       form_data: review.report_json?.form_data ?? reviewResult.fullReport.form_data,
+      failed_domains: (() => {
+        if (!isPartialRetry) return newlyFailedDomains.length > 0 ? newlyFailedDomains : undefined
+        // Remove the retried domains from the previous failed list; add any newly failed ones.
+        const prevFailed: string[] = review.report_json?.failed_domains ?? []
+        const stillFailed = prevFailed.filter((d: string) => !retryDomains!.includes(d))
+        const merged = [...new Set([...stillFailed, ...newlyFailedDomains])]
+        return merged.length > 0 ? merged : undefined
+      })(),
     }
+    if (isPartialRetry) {
+      const existingReport    = review.report_json || {}
+      const existingAiReview  = existingReport.ai_review || {}
+      reportToSave = {
+        ...existingReport,
+        ...reportToSave,
+        ai_review: {
+          ...existingAiReview,
+          ...reportToSave.ai_review,
+          domain_summaries: { ...existingAiReview.domain_summaries, ...reportToSave.ai_review?.domain_summaries },
+          domain_scores:    { ...(existingAiReview.domain_scores || {}), ...reportToSave.ai_review?.domain_scores },
+        },
+        domain_summaries: { ...(existingReport.domain_summaries || {}), ...(reportToSave.domain_summaries || {}) },
+        domain_scores:    { ...(existingReport.domain_scores    || {}), ...(reportToSave.domain_scores    || {}) },
+      }
+    }
+    // Strip per-domain partial cache — it's only needed during a run; the final persisted
+    // report_json should be clean so stale partials don't interfere with future re-triggers.
+    delete reportToSave.domain_partial_results
 
     const { error: updateError } = await adminSupabase
       .from('reviews')
@@ -165,8 +303,8 @@ serve(async (req) => {
         llm_raw_response:       reviewResult.rawResponse,
         reviewed_at:            now,
         agent_run_at:           now,
-        aggregate_rag_score:    reviewResult.aggregateScore,
-        aggregate_rag_label:    reviewResult.aggregateRagLabel,
+        aggregate_rag_score:    aggregateScoreToSave,
+        aggregate_rag_label:    aggregateRagLabelToSave,
         recommended_decision:   reviewResult.decision,
         decision_rationale:     reviewResult.executiveRationale || null,
         kb_sources_cited:       reviewResult.kbSourcesCited,
@@ -206,8 +344,19 @@ serve(async (req) => {
       if (dsErr) console.error(`domain_scores upsert failed for ${domain}:`, dsErr.message)
     }
 
-    // 4c. Blockers — delete then insert fresh
-    await adminSupabase.from('blockers').delete().eq('review_id', reviewId)
+    // 4c. Blockers — delete all domains that produced results this run.
+    // For partial retry we scope to ran domains (not just retryDomains) because
+    // domain_partial_results may have been externally cleared, causing more domains
+    // to re-run than retryDomains implies — scoping to retryDomains would leave
+    // stale records from the extra domains and double the blocker count.
+    const domainsRan = Object.keys(reviewResult.domainScores)
+    if (isPartialRetry) {
+      for (const d of domainsRan) {
+        await adminSupabase.from('blockers').delete().eq('review_id', reviewId).eq('domain', d)
+      }
+    } else {
+      await adminSupabase.from('blockers').delete().eq('review_id', reviewId)
+    }
     if (reviewResult.blockers.length > 0) {
       const { error: blkErr } = await adminSupabase
         .from('blockers')
@@ -228,8 +377,14 @@ serve(async (req) => {
       if (blkErr) console.error('blockers insert failed:', blkErr.message)
     }
 
-    // 4d. Recommendations — delete then insert fresh
-    await adminSupabase.from('recommendations').delete().eq('review_id', reviewId)
+    // 4d. Recommendations — same domainsRan scope as blockers
+    if (isPartialRetry) {
+      for (const d of domainsRan) {
+        await adminSupabase.from('recommendations').delete().eq('review_id', reviewId).eq('domain', d)
+      }
+    } else {
+      await adminSupabase.from('recommendations').delete().eq('review_id', reviewId)
+    }
     if (reviewResult.recommendations.length > 0) {
       const { error: recErr } = await adminSupabase
         .from('recommendations')
@@ -251,8 +406,14 @@ serve(async (req) => {
       if (recErr) console.error('recommendations insert failed:', recErr.message)
     }
 
-    // 4e. Findings — delete then insert fresh
-    await adminSupabase.from('findings').delete().eq('review_id', reviewId)
+    // 4e. Findings — same domainsRan scope as blockers
+    if (isPartialRetry) {
+      for (const d of domainsRan) {
+        await adminSupabase.from('findings').delete().eq('review_id', reviewId).eq('domain', d)
+      }
+    } else {
+      await adminSupabase.from('findings').delete().eq('review_id', reviewId)
+    }
     if (reviewResult.findings.length > 0) {
       const { error: findErr } = await adminSupabase
         .from('findings')
@@ -283,42 +444,61 @@ serve(async (req) => {
     }
 
     // 4f. ADRs — delete then insert fresh
-    await adminSupabase.from('adrs').delete().eq('review_id', reviewId)
-    if (reviewResult.adrs.length > 0) {
-      const { error: adrErr } = await adminSupabase
+    // ADRs are stored with domain=null (chk_adrs_domain constraint prevents storing a
+    // domain slug), so we cannot scope the delete by domain as we do for other tables.
+    // On a partial retry: read existing ADRs first, preserve those not superseded by
+    // this run (matched by adr_id), then re-insert the merged set — matching Python's
+    // behaviour of always persisting the full cross-domain ADR set.
+    const newAdrRows = reviewResult.adrs.map((adr: any, i: number) => ({
+      review_id:            reviewId,
+      adr_id:               adr.id || `ADR-${reviewId.slice(0, 8)}-${String(i + 1).padStart(3, '0')}`,
+      decision:             adr.decision,
+      rationale:            adr.rationale,
+      context:              adr.context              ?? null,
+      consequences:         adr.consequences         ?? null,
+      owner:                adr.owner                ?? null,
+      target_date:          adr.target_date          ?? null,
+      status:               'proposed',
+      domain:               null, // chk_adrs_domain constraint — must remain null
+      adr_type:             null, // chk_adrs_type constraint — must remain null
+      title:                adr.title                ?? null,
+      options_considered:   adr.options_considered   ?? null,
+      mitigations:          adr.mitigations          ?? [],
+      proposed_target_date: null, // chk constraint — skip this field
+      waiver_expiry_date:   adr.waiver_expiry_date   ?? null,
+      links_to_finding_ids: adr.links_to_finding_ids ?? [],
+      links_to_action_ids:  adr.links_to_action_ids  ?? [],
+      kb_references:        adr.kb_references        ?? [],
+    }))
+
+    let adrsToInsert: any[] = newAdrRows
+    if (isPartialRetry) {
+      // Fetch only the insertable columns to avoid re-inserting the auto-generated PK.
+      const { data: existingAdrs } = await adminSupabase
         .from('adrs')
-        .insert(reviewResult.adrs.map((adr: any, i: number) => {
-          // Set proposed_target_date to null to avoid constraint violations
-          // The constraint is too restrictive, so we'll skip this field
-          const formattedProposedTargetDate = null
-          
-          return {
-            review_id:            reviewId,
-            adr_id:               adr.id || `ADR-${reviewId.slice(0, 8)}-${String(i + 1).padStart(3, '0')}`,
-            decision:             adr.decision,
-            rationale:            adr.rationale,
-            context:              adr.context              ?? null,
-            consequences:         adr.consequences         ?? null,
-            owner:                adr.owner                ?? null,
-            target_date:          adr.target_date          ?? null,
-            status:               'proposed',
-            domain:               null, // Set to null to avoid chk_adrs_domain constraint
-            adr_type:             null, // Set to null to avoid chk_adrs_type constraint
-            title:                adr.title                ?? null,
-            options_considered:   adr.options_considered   ?? null,
-            mitigations:          adr.mitigations          ?? [],
-            proposed_target_date: formattedProposedTargetDate,
-            waiver_expiry_date:   adr.waiver_expiry_date   ?? null,
-            links_to_finding_ids: adr.links_to_finding_ids ?? [],
-            links_to_action_ids:  adr.links_to_action_ids  ?? [],
-            kb_references:        adr.kb_references        ?? [],
-          }
-        }))
+        .select('adr_id, decision, rationale, context, consequences, owner, target_date, status, domain, adr_type, title, options_considered, mitigations, proposed_target_date, waiver_expiry_date, links_to_finding_ids, links_to_action_ids, kb_references')
+        .eq('review_id', reviewId!)
+      const newAdrIds = new Set(newAdrRows.map((a: any) => a.adr_id))
+      const preserved = (existingAdrs || [])
+        .filter((a: any) => !newAdrIds.has(a.adr_id))
+        .map((a: any) => ({ ...a, review_id: reviewId }))
+      adrsToInsert = [...preserved, ...newAdrRows]
+    }
+
+    await adminSupabase.from('adrs').delete().eq('review_id', reviewId)
+    if (adrsToInsert.length > 0) {
+      const { error: adrErr } = await adminSupabase.from('adrs').insert(adrsToInsert)
       if (adrErr) console.error('adrs insert failed:', adrErr.message)
     }
 
-    // 4g. Actions — delete then insert fresh
-    await adminSupabase.from('actions').delete().eq('review_id', reviewId)
+    // 4g. Actions — same domainsRan scope as blockers
+    if (isPartialRetry) {
+      for (const d of domainsRan) {
+        await adminSupabase.from('actions').delete().eq('review_id', reviewId).eq('domain', d)
+      }
+    } else {
+      await adminSupabase.from('actions').delete().eq('review_id', reviewId)
+    }
     if (reviewResult.actions.length > 0) {
       const { error: actErr } = await adminSupabase
         .from('actions')
@@ -379,26 +559,32 @@ serve(async (req) => {
     }
 
     // 4i. Audit log
+    const synthesisFellBack = reviewResult.executiveRationale?.startsWith('Synthesis step unavailable') ?? false
     const { error: auditErr } = await adminSupabase.from('audit_log').insert({
       review_id: reviewId,
       user_id:   null,
       user_role: 'system',
       action:    'llm_processed',
       metadata: {
-        tokens_used:         reviewResult.tokensUsed,
-        processing_time_ms:  processingTime,
-        model:               review.llm_model || Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash-lite',
-        domains_reviewed:    review.scope_tags,
-        findings_count:      reviewResult.findings.length,
-        blockers_count:      reviewResult.blockers.length,
-        adrs_count:          reviewResult.adrs.length,
-        actions_count:       reviewResult.actions.length,
-        recommendations_count: reviewResult.recommendations.length,
-        nfr_scorecard_count: reviewResult.nfrScorecard.length,
-        aggregate_rag_label: reviewResult.aggregateRagLabel,
+        tokens_used:                reviewResult.tokensUsed,
+        processing_time_ms:         processingTime,
+        model:                      review.llm_model || Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash-lite',
+        domains_reviewed:           review.scope_tags,
+        findings_count:             reviewResult.findings.length,
+        blockers_count:             reviewResult.blockers.length,
+        adrs_count:                 reviewResult.adrs.length,
+        actions_count:              reviewResult.actions.length,
+        recommendations_count:      reviewResult.recommendations.length,
+        nfr_scorecard_count:        reviewResult.nfrScorecard.length,
+        aggregate_rag_label:        reviewResult.aggregateRagLabel,
+        synthesis_ran:              !synthesisFellBack,
+        synthesis_score_corrections: reviewResult.scoreCorrections?.length ?? 0,
+        synthesis_removed_adrs:     reviewResult.fullReport?.ai_review?.removed_adr_ids?.length ?? 0,
+        synthesis_dedup_findings:   reviewResult.fullReport?.ai_review?.duplicate_finding_ids?.length ?? 0,
       },
     })
     if (auditErr) console.error(`audit_log insert failed (non-fatal): ${auditErr.message}`)
+    if (synthesisFellBack) console.warn('[ORCHESTRATOR] Synthesis fell back — executive rationale not generated. Check [SYNTHESIS] logs above.')
 
     console.log(`Review ${reviewId} processing completed successfully`)
 
@@ -417,6 +603,11 @@ serve(async (req) => {
 
     if (reviewId) {
       try {
+        // Reset review to agent_failed so the UI retry banner becomes visible
+        await adminSupabase
+          .from('reviews')
+          .update({ status: 'agent_failed' })
+          .eq('id', reviewId)
         await adminSupabase.from('audit_log').insert({
           review_id: reviewId,
           user_id:   null,
