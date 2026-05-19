@@ -130,7 +130,7 @@ class EnhancedARBOrchestrator:
                         "rag_score": 2, "rag_label": "red",
                         "overall_readiness": "DEFER",
                         "executive_summary": f"Domain review failed: {exc}",
-                        "compliant_areas": [], "gap_areas": [f"Domain agent failed — re-run required"],
+                        "compliant_areas": [], "gap_areas": ["Domain agent failed — re-run required"],
                         "blocker_count": 0, "action_count": 0, "adr_count": 0,
                         "evidence_quality": "ABSENT",
                     },
