@@ -32,6 +32,7 @@ from app.core.config import settings
 from app.core.db_config import db_config
 from app.agents.enhanced_orchestrator import EnhancedARBOrchestrator
 from app.agents.enhanced_domain_agents import _rag_score_to_severity
+from app.agents.orchestrator_factory import get_orchestrator
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -175,7 +176,7 @@ async def trigger_review(
             logger.info("[AGENT] USE_MOCK_LLM=true — skipping LLM calls, loading Bank EDMS fixture")
             result = await load_mock_result(review_id, db)
         else:
-            orchestrator = EnhancedARBOrchestrator(db)
+            orchestrator = get_orchestrator(db)
             result = await orchestrator.run_review(
                 review_id=review_id,
                 checklist_data=await orchestrator.prepare_checklist_data(review_id),

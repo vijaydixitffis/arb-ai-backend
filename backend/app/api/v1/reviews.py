@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Body, Depends, HTTPException, Header
+from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import logging
 from app.core.database import get_db
@@ -10,6 +11,15 @@ from sqlalchemy.orm import Session
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+class ApproveReviewBody(BaseModel):
+    override_rationale: Optional[str] = None
+
+
+class OverrideReviewBody(BaseModel):
+    decision: str
+    rationale: str
 
 async def get_current_user(authorization: Optional[str] = Header(None)) -> tuple[Optional[str], Optional[str]]:
     """Extract user ID and role from JWT token"""
@@ -33,9 +43,12 @@ async def get_reviews(user_id: str = None, current_user: tuple = Depends(get_cur
     service = ReviewService(db)
     reviews = service.get_all_reviews()
 
-    # SA, EA, ARB Admin can read all reviews
-    # Filter by user if user_id is provided (for getUserReviews)
-    if user_id:
+    # SAs are always scoped to their own submissions — ignore any user_id param
+    # that doesn't match their token (prevents horizontal privilege escalation).
+    if user_role == 'solution_architect':
+        reviews = [r for r in reviews if str(r.sa_user_id) == user_id_token]
+    elif user_id:
+        # EA/admin can optionally filter to a specific SA's submissions
         reviews = [r for r in reviews if str(r.sa_user_id) == user_id]
 
     # Convert to dict format for JSON response
@@ -558,7 +571,12 @@ async def update_review(review_id: str, review_data: dict, current_user: tuple =
     }
 
 @router.post("/{review_id}/approve")
-async def approve_review(review_id: str, override_rationale: str = None, current_user: tuple = Depends(get_current_user), db: Session = Depends(get_db)):
+async def approve_review(
+    review_id: str,
+    body: ApproveReviewBody = Body(default_factory=ApproveReviewBody),
+    current_user: tuple = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Approve a review (EA approval) - EA and ARB Admin only"""
     user_id_token, user_role = current_user
     if not user_id_token:
@@ -566,14 +584,19 @@ async def approve_review(review_id: str, override_rationale: str = None, current
     if user_role not in ['enterprise_architect', 'arb_admin', 'super_admin']:
         raise HTTPException(status_code=403, detail="Only EA and ARB Admin can approve reviews")
     service = ReviewService(db)
-    review = service.approve_review(review_id, override_rationale)
+    review = service.approve_review(review_id, body.override_rationale)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return {"message": "Review approved successfully", "review_id": review_id}
 
 
 @router.post("/{review_id}/override")
-async def override_review(review_id: str, decision: str, rationale: str, current_user: tuple = Depends(get_current_user), db: Session = Depends(get_db)):
+async def override_review(
+    review_id: str,
+    body: OverrideReviewBody,
+    current_user: tuple = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Override agent recommendation (EA override) - EA and ARB Admin only"""
     user_id_token, user_role = current_user
     if not user_id_token:
@@ -581,7 +604,7 @@ async def override_review(review_id: str, decision: str, rationale: str, current
     if user_role not in ['enterprise_architect', 'arb_admin', 'super_admin']:
         raise HTTPException(status_code=403, detail="Only EA and ARB Admin can override reviews")
     service = ReviewService(db)
-    review = service.override_review(review_id, decision, rationale)
+    review = service.override_review(review_id, body.decision, body.rationale)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return {"message": "Review overridden successfully", "review_id": review_id}

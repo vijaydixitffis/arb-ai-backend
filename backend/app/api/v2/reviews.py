@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Body, Depends, HTTPException, Header
+from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import logging
 from app.core.database import get_db
@@ -10,6 +11,33 @@ from sqlalchemy.orm import Session
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+class ApproveReviewBody(BaseModel):
+    override_rationale: Optional[str] = None
+
+
+class OverrideReviewBody(BaseModel):
+    decision: str
+    rationale: str
+
+
+class EADecisionBody(BaseModel):
+    ea_decision: str
+    ea_name: str = ""
+    ea_annotations: Optional[str] = None
+    decision_rationale: str = ""
+    overrides: List[Dict[str, Any]] = []
+    rework_gaps: List[str] = []
+    return_domains: List[str] = []
+
+
+class EAOverrideBody(BaseModel):
+    override_type: str
+    target_id: str
+    original_value: Any
+    override_value: Any
+    rationale: str
 
 async def get_current_user(authorization: Optional[str] = Header(None)) -> tuple[Optional[str], Optional[str]]:
     """Extract user ID and role from JWT token"""
@@ -33,9 +61,12 @@ async def get_reviews(user_id: str = None, current_user: tuple = Depends(get_cur
     service = ReviewService(db)
     reviews = service.get_all_reviews()
 
-    # SA, EA, ARB Admin can read all reviews
-    # Filter by user if user_id is provided (for getUserReviews)
-    if user_id:
+    # SAs are always scoped to their own submissions — ignore any user_id param
+    # that doesn't match their token (prevents horizontal privilege escalation).
+    if user_role == 'solution_architect':
+        reviews = [r for r in reviews if str(r.sa_user_id) == user_id_token]
+    elif user_id:
+        # EA/admin can optionally filter to a specific SA's submissions
         reviews = [r for r in reviews if str(r.sa_user_id) == user_id]
 
     # Convert to dict format for JSON response
@@ -558,7 +589,12 @@ async def update_review(review_id: str, review_data: dict, current_user: tuple =
     }
 
 @router.post("/{review_id}/approve")
-async def approve_review(review_id: str, override_rationale: str = None, current_user: tuple = Depends(get_current_user), db: Session = Depends(get_db)):
+async def approve_review(
+    review_id: str,
+    body: ApproveReviewBody = Body(default_factory=ApproveReviewBody),
+    current_user: tuple = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Approve a review (EA approval) - EA and ARB Admin only"""
     user_id_token, user_role = current_user
     if not user_id_token:
@@ -566,14 +602,19 @@ async def approve_review(review_id: str, override_rationale: str = None, current
     if user_role not in ['enterprise_architect', 'arb_admin', 'super_admin']:
         raise HTTPException(status_code=403, detail="Only EA and ARB Admin can approve reviews")
     service = ReviewService(db)
-    review = service.approve_review(review_id, override_rationale)
+    review = service.approve_review(review_id, body.override_rationale)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return {"message": "Review approved successfully", "review_id": review_id}
 
 
 @router.post("/{review_id}/override")
-async def override_review(review_id: str, decision: str, rationale: str, current_user: tuple = Depends(get_current_user), db: Session = Depends(get_db)):
+async def override_review(
+    review_id: str,
+    body: OverrideReviewBody,
+    current_user: tuple = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Override agent recommendation (EA override) - EA and ARB Admin only"""
     user_id_token, user_role = current_user
     if not user_id_token:
@@ -581,7 +622,7 @@ async def override_review(review_id: str, decision: str, rationale: str, current
     if user_role not in ['enterprise_architect', 'arb_admin', 'super_admin']:
         raise HTTPException(status_code=403, detail="Only EA and ARB Admin can override reviews")
     service = ReviewService(db)
-    review = service.override_review(review_id, decision, rationale)
+    review = service.override_review(review_id, body.decision, body.rationale)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return {"message": "Review overridden successfully", "review_id": review_id}
@@ -623,7 +664,7 @@ async def open_review_for_ea(
 @router.post("/{review_id}/ea-decision")
 async def submit_ea_decision(
     review_id: str,
-    body: dict,
+    body: EADecisionBody,
     current_user: tuple = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -637,13 +678,13 @@ async def submit_ea_decision(
     if user_role not in ['enterprise_architect', 'arb_admin', 'super_admin']:
         raise HTTPException(status_code=403, detail="Only EA and ARB Admin can submit EA decisions")
 
-    ea_decision    = body.get("ea_decision")
-    ea_annotations = body.get("ea_annotations", "")
-    rework_gaps    = body.get("rework_gaps", [])
-    overrides      = body.get("overrides", [])
-    ea_name        = body.get("ea_name", "")
-    decision_rationale = body.get("decision_rationale", "")
-    return_domains = body.get("return_domains", [])  # domains to reset on RETURN
+    ea_decision        = body.ea_decision
+    ea_annotations     = body.ea_annotations or ""
+    rework_gaps        = body.rework_gaps
+    overrides          = body.overrides
+    ea_name            = body.ea_name
+    decision_rationale = body.decision_rationale
+    return_domains     = body.return_domains
 
     valid_ea_decisions = {"APPROVE", "CONDITIONALLY_APPROVE", "RETURN", "DEFER"}
     if ea_decision not in valid_ea_decisions:
@@ -740,7 +781,7 @@ VALID_OVERRIDE_TYPES = {"finding_severity", "action_modification", "adr_content"
 @router.post("/{review_id}/overrides")
 async def create_ea_override(
     review_id: str,
-    body: Dict[str, Any],
+    body: EAOverrideBody,
     current_user: tuple = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -759,11 +800,11 @@ async def create_ea_override(
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    override_type  = body.get("override_type")
-    target_id      = body.get("target_id")
-    original_value = body.get("original_value")
-    override_value = body.get("override_value")
-    rationale      = body.get("rationale", "")
+    override_type  = body.override_type
+    target_id      = body.target_id
+    original_value = body.original_value
+    override_value = body.override_value
+    rationale      = body.rationale
 
     if override_type not in VALID_OVERRIDE_TYPES:
         raise HTTPException(status_code=422, detail=f"override_type must be one of {sorted(VALID_OVERRIDE_TYPES)}")

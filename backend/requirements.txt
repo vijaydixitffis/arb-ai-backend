@@ -6,12 +6,16 @@ python-multipart==0.0.6
 # JSON utilities
 json-repair>=0.30
 
-# AI and ML
-langchain==0.1.0
-langchain-openai==0.0.2
-langchain-community==0.0.10
-langgraph==0.0.20
-openai==1.6.1
+# AI and ML — pinned for resolver stability (langgraph ecosystem must stay in sync)
+langchain==0.3.30
+langchain-openai==0.3.31
+langchain-community==0.3.31
+langchain-google-genai==2.1.12
+langchain-core==0.3.86
+langgraph==0.6.11
+langgraph-checkpoint-postgres==2.0.25
+psycopg[binary]==3.2.13
+openai>=1.6.1
 
 # Document processing
 pypdf==3.17.4
@@ -21,7 +25,7 @@ openpyxl==3.1.2
 
 # Data processing
 pydantic[email]>=2.5.3
-pydantic-settings==2.1.0
+pydantic-settings==2.11.0
 email-validator>=2.0.0
 
 # Authentication

@@ -29,6 +29,17 @@ class Settings(BaseSettings):
     # Mock LLM — when true, bypasses all LLM calls and uses the Bank EDMS fixture
     USE_MOCK_LLM: bool = False
 
+    # Orchestrator engine: "custom" = existing sequential pipeline (default)
+    #                      "langgraph" = parallel LangGraph pipeline
+    AGENT_FRAMEWORK: str = "custom"
+
+    # LangGraph path: max domain agents running concurrently (semaphore cap)
+    LANGGRAPH_MAX_PARALLEL: int = 3
+
+    # LangGraph path: True = PostgresSaver (durable, needs DATABASE_URL)
+    #                 False = MemorySaver (in-process, good for dev/test)
+    LANGGRAPH_CHECKPOINT_DB: bool = True
+
     # LLM call parameters — synthesis step
     LLM_TEMPERATURE: float = 0.3
     LLM_MAX_TOKENS: int = 4096
