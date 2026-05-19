@@ -16,7 +16,6 @@ using the reducers declared in ARBGraphState.
 from __future__ import annotations
 
 import logging
-import time
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Any, Dict, List

@@ -14,9 +14,9 @@ build_langchain_llm  — factory that returns the correct LangChain BaseChatMode
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
 from app.core.config import settings
 
