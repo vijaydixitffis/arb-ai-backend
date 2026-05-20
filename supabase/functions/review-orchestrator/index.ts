@@ -138,11 +138,22 @@ serve(async (req) => {
     // 2b. Multi-artefact schema — query artefacts table (authoritative source of storage_path),
     //     download each file from Storage, extract text, then inject parsed_text into
     //     report_json.artefact_uploads so buildArtefactBlock can serve it to domain agents.
-    const { data: artefactRows, error: artefactFetchErr } = await adminSupabase
+    // Scope the query to only the domains being processed in this run, plus domain-agnostic
+    // artefacts (domain_slug IS NULL). When scope_tags is empty (unconstrained) all artefacts
+    // are fetched. Domain list is DB-driven via scope_tags — no hardcoding here.
+    const domainsInScope: string[] = isPartialRetry ? retryDomains! : (review.scope_tags ?? [])
+
+    let artefactQuery = adminSupabase
       .from('artefacts')
       .select('id, storage_path, file_type, filename, domain_slug')
       .eq('review_id', reviewId)
       .eq('is_active', true)
+    if (domainsInScope.length > 0) {
+      const domainFilters = domainsInScope.map(d => `domain_slug.eq.${d}`).join(',')
+      artefactQuery = artefactQuery.or(`domain_slug.is.null,${domainFilters}`)
+      console.log(`[STEP 2b] Scoped artefact fetch: domains=${domainsInScope.join(',')} + null`)
+    }
+    const { data: artefactRows, error: artefactFetchErr } = await artefactQuery
 
     if (artefactFetchErr) {
       console.warn(`[STEP 2b] artefacts fetch failed (non-fatal): ${artefactFetchErr.message}`)

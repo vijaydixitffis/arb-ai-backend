@@ -553,6 +553,43 @@ OUTPUT ADDITION — include "project_context" as the first key in your JSON resp
   }
 }` : ''
 
+    const nfrExtra = agentDomain === 'nfr' ? `
+
+NFR DOMAIN — DESIGN-PHASE SCORING ONLY:
+You are assessing whether the SA has DESIGNED adequate non-functional characteristics into the solution.
+You are NOT checking whether tests have been run or operational targets have been measured.
+
+SCORING RULES FOR EACH NFR SCORECARD CATEGORY:
+• SCALABILITY_PERFORMANCE: Score against the SA's capacity model, scaling architecture, and whether
+  SLO/performance targets are defined in the design. If the SA has documented target values and an
+  architectural approach to meet them (e.g. horizontal scaling, caching, CDN), score GREEN (4–5).
+  Do NOT flag "performance test evidence missing" — load-test results are OUT OF SCOPE.
+• HA_RESILIENCE: Score against HA architecture design — active-active/active-passive decision,
+  RTO/RPO targets stated in design documents, failover mechanism described.
+  Do NOT flag "DR drill not completed" or "failover test not performed" — these are test EXECUTION.
+• DR: Score against DR architecture — RTO/RPO targets defined, recovery approach documented,
+  backup/restore design present. A DR drill "not completed" entry in any RAID log or risk register
+  is test EXECUTION — completely OUT OF SCOPE. Do NOT create any finding for it. Ignore it entirely.
+• SECURITY: Score against security architecture design. Do NOT flag absent VAPT results.
+• DEVSECOPS_QUALITY: Score against pipeline design and quality gate approach. Do NOT flag absent
+  SAST/DAST scan results or test coverage measurements.
+• ENGINEERING_EXCELLENCE: Score against design practices and documentation quality.
+
+NFR CRITERIA TABLE INTERPRETATION:
+The NFR criteria table shows the SA's DESIGN TARGETS (Target column) and their self-assessed
+current state (Actual column). "Actual" here means what the SA claims the design achieves —
+NOT measured test results. An empty Actual column means the SA has not self-assessed against
+that target — do NOT raise this as a gap or finding. Score against whether a credible
+architectural approach exists to meet the Target.
+
+PROHIBITED FINDINGS in the NFR domain — do NOT generate findings for:
+• DR drill not completed / DR test not performed / failover test pending
+• Performance test evidence missing / load test not conducted / benchmark results absent
+• Scalability testing not performed / stress test not done
+• VAPT not completed / penetration test pending / security scan results missing
+• Any "test not yet executed" language from RAID logs, risk registers, or artefacts
+These are all test EXECUTION items — completely out of ARB scope.` : ''
+
     return `You are a senior ${domainLabel} architect acting as a specialist reviewer in the Pre-ARB AI Agent pipeline.
 Your role is to conduct a thorough, proportionate review of the Solution Architect's submission against
 enterprise architecture standards — producing a balanced assessment that reflects real-world ARB practice.
@@ -723,7 +760,7 @@ SCORING RULES:
 2 = Design gap — mandatory architectural artefact absent OR approach conflicts with EA standards;
     design must be revised before development can proceed
 1 = Critical design failure — fundamental architectural flaw OR mandatory design domain entirely absent
-    with no documented mitigation (BLOCKER)${solutionExtra}`
+    with no documented mitigation (BLOCKER)${solutionExtra}${nfrExtra}`
   }
 
   // ── User prompt (spec: session + KB + artifacts + checklist + ID seed + categories + schema) ──
@@ -976,10 +1013,10 @@ Include "project_context" as the first key (Solution domain only):
       "nfr_category": "SCALABILITY_PERFORMANCE | HA_RESILIENCE | SECURITY | DEVSECOPS_QUALITY | ENGINEERING_EXCELLENCE | DR",
       "rag_score": 3,
       "rag_label": "GREEN | AMBER | RED",
-      "evidence_provided": ["evidence item"],
-      "gaps": ["gap description"],
-      "slo_target": "e.g. 99.9% availability",
-      "actual_evidenced": "What the SA evidenced",
+      "evidence_provided": ["specific DESIGN artefact or architectural decision from SA"],
+      "gaps": ["specific gap in the DESIGN or PLAN — must NOT reference test execution, drill results, or test evidence"],
+      "slo_target": "SLO target from the SA's design (e.g. 99.9% availability)",
+      "actual_evidenced": "What the SA has DESIGNED or PLANNED to achieve the SLO target — not measured results",
       "is_mandatory_green": false
     }
   ]` : ''}
@@ -1077,33 +1114,8 @@ Include "project_context" as the first key (Solution domain only):
         } catch (parseErr: any) {
           console.error(`JSON parse failed for domain ${agentDomain}:`, parseErr)
           console.error('Raw LLM content (first 500 chars):', llmResponse.content.slice(0, 500))
-          // Pessimistic fallback: an unreadable response is unknown, not adequate.
-          // RED-2 ensures the review surfaces as needing re-run rather than silently passing.
-          domainReport = {
-            summary: {
-              rag_score: 2,
-              rag_label: 'red',
-              overall_readiness: 'DEFER',
-              rationale: `LLM response for ${agentDomain} domain could not be parsed — re-run required.`,
-              executive_summary: `Domain review failed to parse. Raw output logged for inspection.`,
-              evidence_quality: 'ABSENT',
-            },
-            findings: [{
-              id: `${domainCode}-F01`,
-              check_category: 'PARSE_FAILURE',
-              rag_score: 2,
-              rag_label: 'red',
-              title: `${agentDomain} domain review unparseable — re-run required`,
-              finding: `The LLM response for this domain could not be parsed as valid JSON. This domain has not been assessed. Re-trigger the review to obtain a valid result.`,
-              recommendation: 'Re-trigger the review. If the error persists, check LLM quota and token limits.',
-              is_blocker: false,
-              links_to_action_ids: [],
-            }],
-            blockers: [],
-            recommendations: [],
-            actions: [],
-            adrs: [],
-          }
+          // Rethrow so the outer retry loop can attempt again with reduced content scale.
+          throw new Error(`JSON parse failed for ${agentDomain}: ${parseErr.message}`)
         }
 
         // Domain score — LLM-authoritative via summary.rag_score

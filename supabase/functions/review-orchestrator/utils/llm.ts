@@ -94,7 +94,7 @@ async function callGemini(
       ],
       generationConfig: {
         temperature: 0.5,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 65536,
         responseMimeType: 'application/json',
       },
     }),
@@ -114,6 +114,9 @@ async function callGemini(
   }
   if (candidate.finishReason === 'SAFETY') {
     throw new Error('Gemini response blocked by safety filters')
+  }
+  if (candidate.finishReason === 'MAX_TOKENS') {
+    throw new Error('Gemini response truncated — output hit maxOutputTokens limit; reduce prompt size or increase token budget')
   }
 
   const content    = candidate.content.parts[0].text as string

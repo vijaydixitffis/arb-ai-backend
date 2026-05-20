@@ -514,7 +514,42 @@ OUTPUT ADDITION — include a "project_context" object at the top level of your 
     "outcomes_measurability": "measurable | partial | not_measurable | absent",
     "solution_fit_assessment": "One sentence on how well the solution addresses the stated problem"
   }
-}""" if domain_slug == "solution" else "")
+}""" if domain_slug == "solution" else "") + ("""
+
+NFR DOMAIN — DESIGN-PHASE SCORING ONLY:
+You are assessing whether the SA has DESIGNED adequate non-functional characteristics into the solution.
+You are NOT checking whether tests have been run or operational targets have been measured.
+
+SCORING RULES FOR EACH NFR SCORECARD CATEGORY:
+• SCALABILITY_PERFORMANCE: Score against the SA's capacity model, scaling architecture, and whether
+  SLO/performance targets are defined in the design. If the SA has documented target values and an
+  architectural approach to meet them (e.g. horizontal scaling, caching, CDN), score GREEN (4–5).
+  Do NOT flag "performance test evidence missing" — load-test results are OUT OF SCOPE.
+• HA_RESILIENCE: Score against HA architecture design — active-active/active-passive decision,
+  RTO/RPO targets stated in design documents, failover mechanism described.
+  Do NOT flag "DR drill not completed" or "failover test not performed" — these are test EXECUTION.
+• DR: Score against DR architecture — RTO/RPO targets defined, recovery approach documented,
+  backup/restore design present. A DR drill "not completed" entry in any RAID log or risk register
+  is test EXECUTION — completely OUT OF SCOPE. Do NOT create any finding for it. Ignore it entirely.
+• SECURITY: Score against security architecture design. Do NOT flag absent VAPT results.
+• DEVSECOPS_QUALITY: Score against pipeline design and quality gate approach. Do NOT flag absent
+  SAST/DAST scan results or test coverage measurements.
+• ENGINEERING_EXCELLENCE: Score against design practices and documentation quality.
+
+NFR CRITERIA TABLE INTERPRETATION:
+The NFR criteria table shows the SA's DESIGN TARGETS (Target column) and their self-assessed
+current state (Actual column). "Actual" here means what the SA claims the design achieves —
+NOT measured test results. An empty Actual column means the SA has not self-assessed against
+that target — do NOT raise this as a gap or finding. Score against whether a credible
+architectural approach exists to meet the Target.
+
+PROHIBITED FINDINGS in the NFR domain — do NOT generate findings for:
+• DR drill not completed / DR test not performed / failover test pending
+• Performance test evidence missing / load test not conducted / benchmark results absent
+• Scalability testing not performed / stress test not done
+• VAPT not completed / penetration test pending / security scan results missing
+• Any "test not yet executed" language from RAID logs, risk registers, or artefacts
+These are all test EXECUTION items — completely out of ARB scope.""" if domain_slug == "nfr" else "")
 
     # ── User prompt (all spec sections) ──────────────────────────────────────
 
@@ -801,11 +836,11 @@ NFR_SCORECARD NOTE: Populate nfr_scorecard[] only when domain = "NFR". Each row:
   "nfr_category": "SCALABILITY_PERFORMANCE | HA_RESILIENCE | SECURITY | DEVSECOPS_QUALITY | ENGINEERING_EXCELLENCE | DR",
   "rag_score": 3,
   "rag_label": "GREEN | AMBER | RED",
-  "evidence_provided": ["specific evidence item from SA"],
-  "gaps": ["specific gap vs SLO baseline"],
-  "mitigating_condition": "What must be done to close the gap — empty string if GREEN",
-  "slo_target": "Platform SLO target e.g. P95 < 3s, Four-9s HA",
-  "actual_evidenced": "What the SA actually evidenced vs the SLO target",
+  "evidence_provided": ["specific DESIGN artefact or architectural decision from SA"],
+  "gaps": ["specific gap in the DESIGN or PLAN — must NOT reference test execution, drill results, or test evidence"],
+  "mitigating_condition": "What design or planning action must be done to close the gap — empty string if GREEN",
+  "slo_target": "SLO target from the SA's design (e.g. P95 < 3s, 99.9% availability)",
+  "actual_evidenced": "What the SA has DESIGNED or PLANNED to achieve the SLO target — not measured results",
   "is_mandatory_green": false
 }}"""
 
@@ -871,9 +906,12 @@ NFR_SCORECARD NOTE: Populate nfr_scorecard[] only when domain = "NFR". Each row:
             return "== NFR QUANTITATIVE CRITERIA — none provided by SA =="
         lines = [
             f"== NFR QUANTITATIVE CRITERIA ({len(rows)} rows) ==",
-            "Use these to calibrate SCALABILITY_PERFORMANCE and HA_RESILIENCE scores.",
+            "Use these to assess whether the SA has defined targets and an architectural approach to meet them.",
+            "IMPORTANT: 'Actual' = the SA's design claim or self-assessment, NOT a measured test result.",
+            "An empty Actual column means the SA did not self-assess — do NOT raise this as a gap.",
+            "Score against whether a credible architectural approach exists to meet the Target.",
             "",
-            "Category           | Criteria              | Target      | Actual       | Score | Evidence",
+            "Category           | Criteria              | Target      | SA Claim     | Score | Evidence",
             "-------------------|----------------------|-------------|--------------|-------|----------",
         ]
         for r in rows:

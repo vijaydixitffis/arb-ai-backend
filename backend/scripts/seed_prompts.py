@@ -1,8 +1,11 @@
 """
-Seed default prompt_templates from the live agent source code.
-Run from backend/: python3 scripts/seed_prompts.py
+Seed / update prompt_templates from the live agent source code.
+
+Run from backend/:  python3 scripts/seed_prompts.py
+Re-running inserts a new version and deactivates the old one for any changed prompts.
+Pass --dry-run to preview SQL without writing to DB.
 """
-import sys, os
+import sys, os, hashlib, argparse
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import psycopg2
@@ -75,6 +78,10 @@ for slug in DOMAIN_SLUGS:
 
 # ── DB connection ─────────────────────────────────────────────────────────────
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--dry-run", action="store_true", help="Print SQL without executing")
+args = parser.parse_args()
+
 DB_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://vijaykumardixit@localhost/arb_ai_agent"
@@ -84,22 +91,74 @@ conn = psycopg2.connect(DB_URL)
 cur  = conn.cursor()
 
 inserted = 0
+updated  = 0
+skipped  = 0
+
 for p in PROMPTS:
+    key     = p["prompt_key"]
+    content = p["content"]
+
+    # Check if an active row already exists and whether content has changed
     cur.execute(
         """
-        INSERT INTO prompt_templates
-            (prompt_key, prompt_type, domain_code, version, content, is_active, notes)
-        VALUES (%s, %s, %s, 1, %s, true, %s)
-        ON CONFLICT DO NOTHING
+        SELECT id, version, content
+        FROM   prompt_templates
+        WHERE  prompt_key = %s AND is_active = true
+        ORDER  BY version DESC
+        LIMIT  1
         """,
-        (p["prompt_key"], p["prompt_type"], p["domain_code"], p["content"], p["notes"]),
+        (key,),
     )
-    inserted += cur.rowcount
+    existing = cur.fetchone()
 
-conn.commit()
+    if existing:
+        existing_id, existing_version, existing_content = existing
+        if hashlib.sha256(existing_content.encode()).digest() == hashlib.sha256(content.encode()).digest():
+            skipped += 1
+            continue  # content unchanged — no action needed
+
+        next_version = existing_version + 1
+        if args.dry_run:
+            print(f"[DRY-RUN] WOULD update {key} v{existing_version} → v{next_version}")
+            updated += 1
+            continue
+
+        # Deactivate the old version
+        cur.execute(
+            "UPDATE prompt_templates SET is_active = false WHERE id = %s",
+            (existing_id,),
+        )
+        # Insert new version
+        cur.execute(
+            """
+            INSERT INTO prompt_templates
+                (prompt_key, prompt_type, domain_code, version, content, is_active, notes)
+            VALUES (%s, %s, %s, %s, %s, true, %s)
+            """,
+            (key, p["prompt_type"], p["domain_code"], next_version, content, p["notes"]),
+        )
+        print(f"  Updated: {key} (v{existing_version} → v{next_version})")
+        updated += 1
+    else:
+        if args.dry_run:
+            print(f"[DRY-RUN] WOULD insert {key} v1")
+            inserted += 1
+            continue
+
+        cur.execute(
+            """
+            INSERT INTO prompt_templates
+                (prompt_key, prompt_type, domain_code, version, content, is_active, notes)
+            VALUES (%s, %s, %s, 1, %s, true, %s)
+            """,
+            (key, p["prompt_type"], p["domain_code"], content, p["notes"]),
+        )
+        print(f"  Inserted: {key} v1")
+        inserted += 1
+
+if not args.dry_run:
+    conn.commit()
 cur.close()
 conn.close()
 
-print(f"Seeded {inserted} prompt(s) into prompt_templates (total configured: {len(PROMPTS)}).")
-if inserted == 0:
-    print("(All prompts already exist — nothing changed.)")
+print(f"\nDone: {inserted} inserted, {updated} updated, {skipped} unchanged.")

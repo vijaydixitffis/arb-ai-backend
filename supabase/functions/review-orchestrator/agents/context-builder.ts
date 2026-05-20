@@ -257,9 +257,12 @@ export function buildNfrCriteriaBlock(reportJson: any): string {
   if (rows.length === 0) return '== NFR CRITERIA — none provided by SA =='
   const lines = [
     `== NFR QUANTITATIVE CRITERIA (${rows.length} rows) ==`,
-    'Use these to calibrate SCALABILITY_PERFORMANCE and HA_RESILIENCE scores.',
+    'Use these to assess whether the SA has defined targets and an architectural approach to meet them.',
+    'IMPORTANT: "Actual" = the SA\'s design claim or self-assessment, NOT a measured test result.',
+    'An empty Actual column means the SA did not self-assess — do NOT raise this as a gap.',
+    'Score against whether a credible architectural approach exists to meet the Target.',
     '',
-    'Category           | Criteria              | Target      | Actual       | Score | Evidence',
+    'Category           | Criteria              | Target      | SA Claim     | Score | Evidence',
     '-------------------|----------------------|-------------|--------------|-------|----------',
   ]
   for (const r of rows) {
