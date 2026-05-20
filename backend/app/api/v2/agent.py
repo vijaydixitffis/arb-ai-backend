@@ -278,10 +278,12 @@ def _persist_results(db: Session, review_id: str, result: Dict[str, Any]) -> Non
     ]
 
     existing = review.report_json or {}
-    # Save the full result including domain_payloads, not just ai_review
+    # Save the full result including domain_payloads, not just ai_review.
+    # has_domain_errors is a convenience flag for the frontend (not in the orchestrator result).
     review.report_json = {
         **existing,
-        **result,  # This includes ai_review, domain_payloads, and all other fields
+        **result,
+        "has_domain_errors": bool(result.get("failed_domains", [])),
     }
 
     try:

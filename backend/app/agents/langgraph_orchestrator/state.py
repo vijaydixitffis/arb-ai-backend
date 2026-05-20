@@ -34,6 +34,7 @@ class ARBGraphState(TypedDict):
     solution_name:  str
     domains:        List[str]           # ordered domain slugs to evaluate
     checklist_data: Dict[str, Any]      # per-domain checklist items
+    retry_domains:  Optional[List[str]] # when set, only these domains are run
 
     # Populated by parallel domain_agent_node invocations.
     # Reducer merges {slug: payload_dict} dicts from each parallel branch.

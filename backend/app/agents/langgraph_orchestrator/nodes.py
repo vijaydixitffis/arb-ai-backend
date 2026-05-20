@@ -83,9 +83,15 @@ def _persist_partial(db: Session, review_id: str, domain_slug: str, payload: Dic
 # ── Node 1: load_context_node ─────────────────────────────────────────────────
 
 async def load_context_node(state: Dict[str, Any], config: RunnableConfig) -> Dict[str, Any]:
-    """Fetch the review record and resolve the ordered domain list."""
+    """Fetch the review record and resolve the ordered domain list.
+
+    On a partial retry (retry_domains set), seeds domain_results with cached
+    payloads from report_json.domain_partial_results for domains not being
+    re-run, so aggregate_node always sees a full set of domain results.
+    """
     db: Session     = config["configurable"]["db"]
     review_id: str  = state["review_id"]
+    retry_domains   = state.get("retry_domains") or None
 
     from app.db.review_models import Review
     from app.db.metadata_models import Domain
@@ -104,12 +110,24 @@ async def load_context_node(state: Dict[str, Any], config: RunnableConfig) -> Di
     if "solution" in active_slugs and "solution" not in domains:
         domains.insert(0, "solution")
 
-    logger.info(f"[LG] load_context review={review_id} domains={domains}")
+    # Seed domain_results with cached payloads for domains we are NOT re-running.
+    # The _merge_dicts reducer will overlay fresh results as domain_agent_node completes.
+    seeded_results: Dict[str, Any] = {}
+    if retry_domains is not None:
+        existing_partials = (review.report_json or {}).get("domain_partial_results", {})
+        for slug in domains:
+            if slug not in retry_domains and slug in existing_partials and not existing_partials[slug].get("error"):
+                seeded_results[slug] = existing_partials[slug]
+        if seeded_results:
+            logger.info(f"[LG] load_context seeded cached results for {list(seeded_results.keys())}")
+
+    logger.info(f"[LG] load_context review={review_id} domains={domains}" +
+                (f" retry_domains={retry_domains}" if retry_domains else ""))
 
     return {
         "solution_name":  review.solution_name or "",
         "domains":        domains,
-        "domain_results": {},
+        "domain_results": seeded_results,
         "failed_domains": [],
         "retry_counts":   {},
     }
@@ -118,10 +136,24 @@ async def load_context_node(state: Dict[str, Any], config: RunnableConfig) -> Di
 # ── Routing function: fan-out after load_context ──────────────────────────────
 
 def route_to_domains(state: Dict[str, Any]) -> List[Send]:
-    """Emit one Send per domain slug — LangGraph dispatches these in parallel."""
+    """Emit one Send per domain slug — LangGraph dispatches these in parallel.
+
+    When retry_domains is set, only those slugs are dispatched; the rest already
+    have persisted results from the previous run and do not need to re-run.
+    """
+    retry_domains = state.get("retry_domains") or None
+    slugs = (
+        [s for s in state["domains"] if s in retry_domains]
+        if retry_domains is not None
+        else state["domains"]
+    )
+    if retry_domains is not None:
+        skipped = [s for s in state["domains"] if s not in retry_domains]
+        if skipped:
+            logger.info(f"[LG] retry_domains set — skipping {skipped}, running {slugs}")
     return [
         Send("domain_agent", {**state, "current_domain": slug})
-        for slug in state["domains"]
+        for slug in slugs
     ]
 
 

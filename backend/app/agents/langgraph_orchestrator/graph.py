@@ -88,6 +88,7 @@ class LangGraphARBOrchestrator:
             "solution_name":     "",
             "domains":           [],
             "checklist_data":    checklist_data,
+            "retry_domains":     retry_domains or None,
             "domain_results":    {},
             "failed_domains":    [],
             "retry_counts":      {},
