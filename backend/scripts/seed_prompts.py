@@ -14,13 +14,11 @@ import psycopg2
 
 from app.agents.enhanced_domain_agents import EnhancedDomainValidationAgent
 from app.agents.enhanced_orchestrator import EnhancedARBOrchestrator
+from app.core.config import settings
 
 # ── DB connection (needed before building prompts to load domain metadata) ────
 
-DB_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://vijaykumardixit@localhost/arb_ai_agent"
-)
+DB_URL = settings.DATABASE_URL
 conn_pre = psycopg2.connect(DB_URL)
 cur_pre  = conn_pre.cursor()
 
