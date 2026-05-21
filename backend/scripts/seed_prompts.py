@@ -12,19 +12,29 @@ import psycopg2
 
 # ── Pull prompt text from agent source ───────────────────────────────────────
 
-from app.agents.enhanced_domain_agents import (
-    EnhancedDomainValidationAgent, DOMAIN_LABEL,
-)
+from app.agents.enhanced_domain_agents import EnhancedDomainValidationAgent
 from app.agents.enhanced_orchestrator import EnhancedARBOrchestrator
 
-class _FakeDB:
-    def query(self, *a, **kw): return self
-    def filter(self, *a, **kw): return self
-    def order_by(self, *a, **kw): return self
-    def first(self): return None
+# ── DB connection (needed before building prompts to load domain metadata) ────
 
+DB_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://vijaykumardixit@localhost/arb_ai_agent"
+)
+conn_pre = psycopg2.connect(DB_URL)
+cur_pre  = conn_pre.cursor()
+
+# Load active domains from DB — no hardcoded slug list
+cur_pre.execute("SELECT slug, name FROM domains WHERE is_active = true ORDER BY seq_number")
+DB_DOMAINS = cur_pre.fetchall()  # [(slug, name), ...]
+
+cur_pre.close()
+conn_pre.close()
+
+# Build a minimal fake agent for calling _build_system_prompt (no DB calls needed there)
 _agent = EnhancedDomainValidationAgent.__new__(EnhancedDomainValidationAgent)
-_agent.db = _FakeDB()
+_agent.db    = None
+_agent._meta = None  # _build_system_prompt doesn't use _meta
 
 # Generic domain template — keep placeholders for super_admin editing
 _sentinel_label = "DOMAIN_LABEL_PLACEHOLDER"
@@ -35,12 +45,6 @@ DOMAIN_SYSTEM_GENERIC = (
     .replace(_sentinel_label, "{domain_label}")
     .replace(_sentinel_slug,  "{domain_slug}")
 )
-
-# Per-domain system prompts — literal content for each of the 9 domains
-DOMAIN_SLUGS = [
-    "solution", "business", "application", "integration",
-    "data", "security", "infrastructure", "devsecops", "nfr",
-]
 
 # Synthesizer system prompt
 SYNTHESIZER_SYSTEM = EnhancedARBOrchestrator._SYNTHESIS_SYSTEM_PROMPT.strip()
@@ -64,28 +68,22 @@ PROMPTS = [
     },
 ]
 
-# Add one entry per domain — full literal prompt including any domain-specific appendix
-for slug in DOMAIN_SLUGS:
-    label   = DOMAIN_LABEL.get(slug, slug.title())
-    content = _agent._build_system_prompt(label, slug)
+# Add one entry per active domain — labels from DB, no hardcoded list
+for slug, name in DB_DOMAINS:
+    content = _agent._build_system_prompt(name, slug)
     PROMPTS.append({
         "prompt_key":  f"domain.system.{slug}",
         "prompt_type": "system",
         "domain_code": slug,
         "content":     content,
-        "notes":       f"{label} domain system prompt. Overrides domain.system for the {slug} domain.",
+        "notes":       f"{name} domain system prompt. Overrides domain.system for the {slug} domain.",
     })
 
-# ── DB connection ─────────────────────────────────────────────────────────────
+# ── DB connection for upsert ──────────────────────────────────────────────────
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dry-run", action="store_true", help="Print SQL without executing")
 args = parser.parse_args()
-
-DB_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://vijaykumardixit@localhost/arb_ai_agent"
-)
 
 conn = psycopg2.connect(DB_URL)
 cur  = conn.cursor()

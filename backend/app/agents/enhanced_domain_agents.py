@@ -27,42 +27,59 @@ from app.core.db_config import db_config
 
 logger = logging.getLogger(__name__)
 
-# ── Domain metadata ────────────────────────────────────────────────────────────
+# ── Domain metadata cache ─────────────────────────────────────────────────────
+# Loaded lazily from the `domains` and `question_registry` DB tables.
+# No hardcoded domain lists — new domains added via DB are picked up automatically.
 
-DOMAIN_CODE: Dict[str, str] = {
-    "solution":       "SOL",
-    "business":       "BUS",
-    "application":    "APP",
-    "integration":    "INT",
-    "data":           "DAT",
-    "infrastructure": "INF",
-    "devsecops":      "DSO",
-    "nfr":            "NFR",
-}
+class _DomainMetaCache:
+    """Per-agent-instance cache of domain metadata loaded from DB.
 
-DOMAIN_LABEL: Dict[str, str] = {
-    "solution":       "Solution",
-    "business":       "Business Domain",
-    "application":    "Application Domain",
-    "integration":    "Integration Domain",
-    "data":           "Data Domain",
-    "infrastructure": "Infrastructure & Platform",
-    "devsecops":      "DevSecOps Domain",
-    "nfr":            "Non-Functional Requirements",
-}
+    code  : derived from uppercase letters in domains.name (e.g. "DSO" from
+            "DevSecOps"); falls back to slug[:3].upper() when fewer than 2
+            uppercase letters are present (e.g. "BUS" from "business").
+    label : domains.name as stored in the DB.
+    tabs  : question_registry frontend_tab values for this domain — the set of
+            tabs whose questions apply.  Loaded once and cached.
+    """
 
-# Maps Python domain slug → question_registry.frontend_tab values
-# (frontend_tab uses full slug names matching the Python DB)
-DOMAIN_TO_QR_TABS: Dict[str, List[str]] = {
-    "solution":       ["solution"],
-    "business":       ["business"],
-    "application":    ["application"],
-    "integration":    ["integration"],
-    "data":           ["data"],
-    "infrastructure": ["infrastructure"],
-    "devsecops":      ["devsecops"],
-    "nfr":            ["nfr"],
-}
+    def __init__(self) -> None:
+        self._code:  Dict[str, str]        = {}
+        self._label: Dict[str, str]        = {}
+        self._tabs:  set                   = set()   # valid frontend_tab values
+        self._loaded = False
+
+    def _load(self, db: Session) -> None:
+        if self._loaded:
+            return
+        try:
+            rows = db.execute(text(
+                "SELECT slug, name FROM domains WHERE is_active = true"
+            )).fetchall()
+            for slug, name in rows:
+                upper_chars = "".join(c for c in name if c.isupper())
+                self._code[slug]  = upper_chars if len(upper_chars) >= 2 else slug[:3].upper()
+                self._label[slug] = name
+
+            tab_rows = db.execute(text(
+                "SELECT DISTINCT frontend_tab FROM question_registry WHERE is_active = true"
+            )).fetchall()
+            self._tabs = {r[0] for r in tab_rows}
+        except Exception as exc:
+            logger.warning(f"[DOMAIN-META] DB load failed ({exc}); cache will be empty")
+        finally:
+            self._loaded = True
+
+    def code(self, db: Session, slug: str) -> str:
+        self._load(db)
+        return self._code.get(slug) or slug[:3].upper()
+
+    def label(self, db: Session, slug: str) -> str:
+        self._load(db)
+        return self._label.get(slug) or slug.title()
+
+    def qr_tabs(self, db: Session, slug: str) -> List[str]:
+        self._load(db)
+        return [slug] if slug in self._tabs else []
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -85,6 +102,7 @@ class EnhancedDomainValidationAgent:
         self.db = db
         self.llm_service: LLMService = llm_service
         self.artefact_service = ArtefactService(db)
+        self._meta = _DomainMetaCache()
 
     # ── Main entry point ──────────────────────────────────────────────────────
 
@@ -106,8 +124,8 @@ class EnhancedDomainValidationAgent:
             f"content_scale={content_scale}"
         )
 
-        domain_code  = DOMAIN_CODE.get(domain_slug, domain_slug.upper()[:3])
-        domain_label = DOMAIN_LABEL.get(domain_slug, domain_slug.title())
+        domain_code  = self._meta.code(self.db, domain_slug)
+        domain_label = self._meta.label(self.db, domain_slug)
 
         chunk_limit  = max(1, int(db_config(self.db, "agent.kb_chunk_limit",      settings.KB_CHUNK_LIMIT)      * content_scale))
         kb_dom_limit = max(1, int(db_config(self.db, "agent.kb_max_results",       settings.KB_DOMAIN_RESULTS)   * content_scale))
@@ -567,7 +585,7 @@ These are all test EXECUTION items — completely out of ARB scope.""" if domain
         from datetime import datetime, timezone
 
         review_date    = datetime.now(timezone.utc).isoformat()
-        domain_label   = DOMAIN_LABEL.get(domain_slug, domain_slug.title())
+        domain_label   = self._meta.label(self.db, domain_slug)
         meta           = checklist_data.get("domain_metadata", {})
         solution_name  = meta.get("solution_name", "(not provided)")
 
@@ -850,7 +868,7 @@ NFR_SCORECARD NOTE: Populate nfr_scorecard[] only when domain = "NFR". Each row:
         """Return unique check_category rows for the domain from question_registry.
         Falls back to checklist_subsections if question_registry is not populated.
         """
-        tabs = DOMAIN_TO_QR_TABS.get(domain_slug, [domain_slug])
+        tabs = self._meta.qr_tabs(self.db, domain_slug) or [domain_slug]
         placeholders = ", ".join(f":tab{i}" for i in range(len(tabs)))
         params = {f"tab{i}": t for i, t in enumerate(tabs)}
 
