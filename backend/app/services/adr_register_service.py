@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, text
+from sqlalchemy import text
 from app.db.adr_register_models import AdrRegister
 from app.models.adr_register import AdrRegisterCreate, AdrRegisterStatusUpdate
 from typing import List, Optional
@@ -53,7 +53,7 @@ class AdrRegisterService:
             linked_arb_ref= data.linked_arb_ref,
             options       = [o.model_dump() for o in data.options],
             consequences  = data.consequences.model_dump(),
-            links         = [l.model_dump() for l in data.links],
+            links         = [lnk.model_dump() for lnk in data.links],
             created_by    = uuid.UUID(user_id) if user_id else None,
         )
         self.db.add(row)
@@ -87,7 +87,7 @@ class AdrRegisterService:
             elif field == 'consequences':
                 value = data.consequences.model_dump()
             elif field == 'links':
-                value = [l if isinstance(l, dict) else l.model_dump() for l in data.links]
+                value = [lnk if isinstance(lnk, dict) else lnk.model_dump() for lnk in data.links]
             elif field in ('status', 'stage'):
                 value = value.value if hasattr(value, 'value') else value
             setattr(row, field, value)
