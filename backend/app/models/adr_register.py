@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import date, datetime
 from enum import Enum
+from uuid import UUID
 
 class AdrStatus(str, Enum):
     draft       = 'draft'
@@ -66,7 +67,7 @@ class AdrRegisterStatusUpdate(BaseModel):
     status: AdrStatus
 
 class AdrRegisterResponse(AdrRegisterBase):
-    id:            str
+    id:            UUID
     adr_id:        str
     comment_count: int = 0
     activity:      List[AdrActivityEvent] = []

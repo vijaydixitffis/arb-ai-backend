@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Text, Date, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, ARRAY, JSONB, TIMESTAMPTZ
+from sqlalchemy import Column, String, Text, Date, Integer, ForeignKey, DateTime
+from sqlalchemy.dialects.postgresql import UUID, ARRAY, JSONB
 from app.core.database import Base
 import uuid
 from datetime import datetime
@@ -21,7 +21,7 @@ class AdrRegister(Base):
     tags           = Column(ARRAY(String), nullable=False, default=list)
     domain         = Column(Text)
     review_date    = Column(Date)
-    decided_at     = Column(TIMESTAMPTZ)
+    decided_at     = Column(DateTime(timezone=True))
     superseded_by  = Column(String, ForeignKey("adr_register.adr_id", ondelete="SET NULL"), nullable=True)
     linked_arb_ref = Column(String)
     options        = Column(JSONB, nullable=False, default=list)
@@ -30,5 +30,5 @@ class AdrRegister(Base):
     activity       = Column(JSONB, nullable=False, default=list)
     comment_count  = Column(Integer, nullable=False, default=0)
     created_by     = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    created_at     = Column(TIMESTAMPTZ, nullable=False, default=datetime.utcnow)
-    updated_at     = Column(TIMESTAMPTZ, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at     = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    updated_at     = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

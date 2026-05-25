@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
-from app.core.security import get_current_user
+from app.core.security import decode_access_token
 from app.models.adr_register import (
     AdrRegisterCreate,
     AdrRegisterResponse,
@@ -11,6 +11,12 @@ from app.models.adr_register import (
 from app.services.adr_register_service import AdrRegisterService
 
 router = APIRouter()
+
+async def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[str]:
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    payload = decode_access_token(authorization.split(" ")[1])
+    return payload.get("sub") if payload else None
 
 def _svc(db: Session = Depends(get_db)) -> AdrRegisterService:
     return AdrRegisterService(db)
@@ -44,7 +50,7 @@ async def create_adr(
     svc: AdrRegisterService = Depends(_svc),
     current_user = Depends(get_current_user),
 ):
-    return svc.create_adr(data, user_id=str(current_user.id))
+    return svc.create_adr(data, user_id=current_user)
 
 @router.put("/{adr_id}", response_model=AdrRegisterResponse)
 async def update_adr(
